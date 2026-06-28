@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港 AI 行山路線搜尋</title>
+    <style>
+        /* 全局手機化設定 */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f7f9f7; 
+            margin: 0; 
+            padding: 15px; 
+            color: #333;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #1b5e20;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+        
+        #subtitle {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* 搜尋卡片 */
+        .search-box { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            margin-bottom: 20px;
+        }
+
+        .filter-group { 
+            margin-bottom: 18px; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            font-size: 15px;
+            color: #444;
+        }
+
+        select, button { 
+            width: 100%; 
+            padding: 14px; 
+            font-size: 16px; 
+            border-radius: 10px; 
+            border: 1px solid #e0e0e0; 
+            background-color: #fafafa;
+            -webkit-appearance: none; 
+            box-sizing: border-box;
+        }
+
+        button { 
+            background-color: #2e7d32; 
+            color: white; 
+            border: none; 
+            font-weight: bold;
+            cursor: pointer; 
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2);
+            transition: background-color 0.2s;
+        }
+        
+        button:active {
+            background-color: #1b5e20; 
+        }
+
+        /* 路線卡片樣式 */
+        .route-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #eef2ee;
+        }
+        .route-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1b5e20;
+            margin: 0 0 8px 0;
+        }
+        .route-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .route-details span {
+            background: #f0f4f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        /* 卡片內置 AI 按鈕 */
+        .ask-ai-btn {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #c8e6c9;
+            width: auto;
+            display: inline-block;
+            margin-top: 0;
+            font-weight: 500;
+        }
+        .ask-ai-btn:active {
+            background-color: #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>⛰️ HikingRice 香港行山搜尋</h1>
+    <p id="subtitle">尋找你的下一條行山路線 x AI 裝備教練</p>
+
+    <div class="search-box">
+        <div class="filter-group">
+            <label for="region-select">選擇地區：</label>
+            <select id="region-select">
+                <option value="all">-- 所有地區 --</option>
+                <option value="sai-kung">西貢 (例如：麥理浩徑)</option>
+                <option value="hk-island">港島 (例如：龍脊)</option>
+                <option value="lantau">大嶼山 (例如：大東山)</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="diff-select">難度級別：</label>
+            <select id="diff-select">
+                <option value="all">-- 所有難度 --</option>
+                <option value="1">★☆☆☆☆ 新手入門</option>
+                <option value="3">★★★☆☆ 中等難度</option>
+                <option value="5">★★★★★ 挑戰極限</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="view-select">景觀偏好：</label>
+            <select id="view-select">
+                <option value="all">-- 所有景觀 --</option>
+                <option value="sea">海景</option>
+                <option value="mountain">山景</option>
+                <option value="historical">歷史遺蹟</option>
+            </select>
+        </div>
+
+        <button id="search-btn">搜尋路線</button>
+    </div>
+
+    <div id="results-list" style="margin-top: 25px;"></div>
+
+    <div id="ai-suggestion-box" style="margin-top: 20px; padding: 18px; background-color: #ffffff; border-left: 6px solid #2e7d32; border-radius: 4px 16px 16px 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: none;">
+        <h3 style="margin-top: 0; color: #1b5e20;">🤖 AI 行山教練建議：</h3>
+        
+        <div id="weather-banner" style="background: #f1f8ff; border: 1px solid #c8e1ff; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; color: #0366d6; display: none;">
+            📊 <strong>香港天文台實時天氣：</strong> <span id="current-temp">--</span>°C 
+            <span id="weather-warning" style="margin-left: 10px; color: #d9381e; font-weight: bold;"></span>
+        </div>
+
+        <div id="ai-loading" style="color: #666; font-style: italic;">AI 教練正在分析實時天氣與路線... 🕒</div>
+        <p id="ai-text" style="white-space: pre-line; line-height: 1.7; font-size: 15px; color: #333;"></p>
+    </div>
+
+    <script>
+        // 1. 路線數據
+        const hikingRoutes = [
+            { name: "麥理浩徑第一、二段", region: "sai-kung", difficulty: "3", start: "北潭涌", end: "北潭凹", distance: "24km", views: "海景/萬宜水庫" },
+            { name: "西灣亭至北潭凹", region: "sai-kung", difficulty: "3", start: "西灣亭", end: "北潭凹", distance: "12km", views: "海景/大浪西灣" },
+            { name: "龍脊", region: "hk-island", difficulty: "1", start: "土地灣", end: "大浪灣", distance: "8.5km", views: "海景/石澳" },
+            { name: "大東山", region: "lantau", difficulty: "5", start: "伯公坳", end: "梅窩", distance: "9km", views: "山景/芒草" },
+            { name: "鳳凰山", region: "lantau", difficulty: "5", start: "伯公坳", end: "昂坪", distance: "7km", views: "山景/日出" }
+        ];
+
+        // 2. 獲取網頁元素
+        const searchBtn = document.getElementById('search-btn');
+        const resultsList = document.getElementById('results-list');
+        const aiBox = document.getElementById('ai-suggestion-box');
+        const weatherBanner = document.getElementById('weather-banner');
+        const currentTempSpan = document.getElementById('current-temp');
+        const weatherWarningSpan = document.getElementById('weather-warning');
+        const aiLoading = document.getElementById('ai-loading');
+        const aiText = document.getElementById('ai-text');
+
+        // 全局天氣變數備份
+        let liveTemperature = 25; 
+        let liveWarnings = "";
+
+        // 3. 點擊搜尋
+        searchBtn.addEventListener('click', function() {
+            const selectedRegion = document.getElementById('region-select').value;
+            const selectedDiff = document.getElementById('diff-select').value;
+
+            aiBox.style.display = 'none';
+            resultsList.innerHTML = '';
+
+            const results = hikingRoutes.filter(route => {
+                const matchRegion = (selectedRegion === 'all' || route.region === selectedRegion);
+                const matchDiff = (selectedDiff === 'all' || route.difficulty === selectedDiff);
+                return matchRegion && matchDiff;
+            });
+
+            if (results.length > 0) {
+                results.forEach(route => {
+                    const card = document.createElement('div');
+                    card.className = 'route-card';
+                    card.innerHTML = `
+                        <p class="route-title">📍 ${route.name}</p>
+                        <div class="route-details">
+                            <span>🏃 ${route.distance}</span>
+                            <span>🏁 ${route.start} → ${route.end}</span>
+                            <span>🌅 ${route.views}</span>
+                        </div>
+                        <button class="ask-ai-btn">🤖 獲取 AI 裝備與補給建議</button>
+                    `;
+
+                    const aiBtn = card.querySelector('.ask-ai-btn');
+                    aiBtn.addEventListener('click', () => {
+                        triggerAI(route);
+                    });
+
+                    resultsList.appendChild(card);
+                });
+            } else {
+                resultsList.innerHTML = `<p style="text-align:center; color:#999; margin-top:20px;">Sorry！未搵到符合條件的路線。</p>`;
+            }
+        });
+
+        // 4. 獲取香港天文台實時數據 (包含氣溫與警告)
+        async function fetchHKWeather() {
+            try {
+                // 獲取當前天氣資料（內含各區氣溫）
+                const tempRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+                const tempData = await tempRes.json();
+                
+                // 獲取京士柏或黃竹坑作為基準溫度，若無則取第一筆
+                if (tempData.temperature && tempData.temperature.data.length > 0) {
+                    liveTemperature = tempData.temperature.data[0].value;
+                }
+
+                // 獲取當前天氣警告
+                const warnRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
+                const warnData = await warnRes.json();
+                
+                let warnings = [];
+                if (warnData && Object.keys(warnData).length > 0) {
+                    for (let key in warnData) {
+                        warnings.push(warnData[key].name);
+                    }
+                }
+                liveWarnings = warnings.length > 0 ? `⚠️ 注意：正生效【${warnings.join(', ')}】` : "";
+
+            } catch (error) {
+                console.error("無法獲取天文台數據:", error);
+                // 發生錯誤時保持預設值
+            }
+        }
+
+        // 5. 觸發 AI 建議功能
+        async function triggerAI(route) {
+            // 顯示 AI 盒子並滑動到視線內
+            aiBox.style.display = 'block';
+            aiLoading.style.display = 'block';
+            weatherBanner.style.display = 'none';
+            aiText.innerText = '';
+            aiBox.scrollIntoView({ behavior: 'smooth' });
+
+            // 1. 先抓取天文台最新即時天氣
+            await fetchHKWeather();
+
+            // 2. 顯示天氣資訊到 UI 橫幅上
+            currentTempSpan.innerText = liveTemperature;
+            if (liveWarnings) {
+                weatherWarningSpan.innerText = liveWarnings;
+                weatherWarningSpan.style.display = 'inline';
+            } else {
+                weatherWarningSpan.style.display = 'none';
+            }
+            weatherBanner.style.display = 'block';
+
+            // 3. 模擬 AI 分析（等 1 秒）
+            setTimeout(() => {
+                let suggestion = `【資深教練 AI 綜合建議 —— ${route.name}】\n\n`;
+                suggestion += `🛑 路線特性：由 ${route.start} 出發，全程約 ${route.distance}，主打 ${route.views}。\n\n`;
+                
+                // 根據真實氣溫動態加乘水分建議
+                let waterBonus = liveTemperature >= 30 ? "（因氣溫高達 " + liveTemperature + "°C，需額外多帶 500-1000ml）" : "";
+
+                if (route.difficulty === "5") {
+                    suggestion += `💧 飲水量：建議攜帶最少 2.5L 至 3L 飲用水或電解質補充飲品 ${waterBonus}。\n🎒 裝備建議：必備防滑行山鞋、行山杖、遮陽帽、以及防風輕便外套（山頂氣溫與市區差異大）。\n📍 補給提醒：沿途基本無中途補給，請在起點備足糧餉！`;
+                } else if (route.difficulty === "3") {
+                    suggestion += `💧 飲水量：建議攜帶 1.5L 至 2L 飲用水 ${waterBonus}。\n🎒 裝備建議：透氣運動服、防蚊噴霧、防曬霜。\n📍 補給提醒：中途補給點有限，請留意體力分配。`;
+                } else {
+                    suggestion += `💧 飲水量：1L 飲用水基本已足夠 ${waterBonus}。\n🎒 裝備建議：普通輕便運動鞋、防曬傘。\n📍 補給提醒：難度極低，適合輕鬆行，終點附近通常有便利店或士多。`;
+                }
+
+                // 若有極端天氣警告，追加教練叮囑
+                if (liveWarnings) {
+                    suggestion += `\n\n🚨 【安全特訓警戒】：偵測到天文台正發出警告訊號，行山時請時刻留意天氣突變，如遇雷暴或暴雨，請立即中止行程並尋找安全地方暫避！`;
+                }
+
+                aiLoading.style.display = 'none';
+                aiText.innerText = suggestion;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
