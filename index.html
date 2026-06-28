@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>香港 AI 行山路線搜尋</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>香港 AI 行山路線搜尋 - 最終GPS智能版</title>
     <style>
-        /* 全局變數：清新綠白與黑夜模式 */
         :root {
             --bg-color: #f7f9f7;
             --text-color: #333333;
@@ -57,8 +55,6 @@
             font-size: 13px;
             border-radius: 20px;
             cursor: pointer;
-            width: auto;
-            margin-top: 0;
             box-shadow: 0 2px 4px var(--box-shadow);
             font-weight: 600;
         }
@@ -122,24 +118,6 @@
             box-sizing: border-box;
         }
 
-        /* 歷史搜尋紀錄小樣式 */
-        .history-container {
-            margin-top: 8px;
-            font-size: 13px;
-            color: var(--secondary-text);
-        }
-        .history-tag {
-            display: inline-block;
-            background: var(--badge-bg);
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-right: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            border: 1px solid var(--input-border);
-        }
-
-        /* 功能 4：多重標籤過濾 UI 列 */
         .tags-cloud {
             display: flex;
             flex-wrap: wrap;
@@ -176,7 +154,6 @@
             border: 1px solid var(--input-border); 
             background-color: var(--input-bg);
             color: var(--text-color);
-            -webkit-appearance: none; 
             box-sizing: border-box;
         }
 
@@ -286,11 +263,7 @@
             border: 1px solid #2d5a32;
         }
 
-        .nav-btn {
-            background-color: #1a73e8;
-            color: white;
-        }
-
+        .nav-btn { background-color: #1a73e8; color: white; }
         .map-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
@@ -299,7 +272,6 @@
             font-size: 14px;
         }
 
-        /* 離線警告橫幅與危險警告 */
         .danger-alert {
             color: #d9381e !important;
             font-weight: bold;
@@ -310,6 +282,24 @@
             display: inline-block;
             margin-top: 5px;
         }
+        
+        .warning-alert-orange {
+            color: #e65100 !important;
+            font-weight: bold;
+            background-color: #fff3e0;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #ffe0b2;
+            display: block;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        [data-theme="dark"] .warning-alert-orange {
+            background-color: #3e2723;
+            color: #ffb74d !important;
+            border: 1px solid #5d4037;
+        }
+
         .offline-alert {
             background-color: #ff9800 !important;
             color: white !important;
@@ -321,13 +311,63 @@
             text-align: center;
         }
 
-        /* 圖表渲染畫布外框 */
-        .chart-container {
+        .forecast-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .forecast-card {
+            flex: 1;
             background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
             padding: 10px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid var(--input-border);
+            text-align: center;
+            font-size: 12px;
+        }
+        .forecast-card-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 4px;
+        }
+        [data-theme="dark"] .forecast-card-title { color: #81c784; }
+
+        .eta-badge {
+            background-color: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ffe0b2;
+            font-weight: bold;
+        }
+        [data-theme="dark"] .eta-badge {
+            background-color: #3e2723;
+            color: #ffb74d;
+            border: 1px solid #5d4037;
+        }
+
+        .card-ai-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-left: 5px solid #2e7d32;
+            border-radius: 4px 12px 12px 4px;
+            border: 1px solid var(--card-border);
+            border-left: 5px solid #2e7d32;
+            transition: all 0.3s ease;
+        }
+        
+        .weather-banner {
+            background: #f1f8ff;
+            border: 1px solid #c8e1ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #0366d6;
+        }
+        [data-theme="dark"] .weather-banner {
+            background: #141d26;
+            border: 1px solid #243342;
+            color: #388bfd;
         }
     </style>
 </head>
@@ -339,15 +379,14 @@
     </div>
 
     <h1>⛰️ HikingRice 香港行山搜尋</h1>
-    <p id="subtitle">尋找你的下一條行山路線 x AI 裝備教練</p>
+    <p id="subtitle">尋找你的下一條行山路線 x GPS 智能公車精算教練</p>
 
     <div class="search-box">
-        <button id="gps-btn" class="gps-btn">📍 獲取我的位置計算距離</button>
+        <button id="gps-btn" class="gps-btn">📍 獲取我的位置計算距離與精確車程</button>
 
         <div class="filter-group">
             <label for="keyword-input">關鍵字搜尋：</label>
             <input type="text" id="keyword-input" placeholder="搜尋景觀、起點或關鍵字（如：芒草）...">
-            <div id="history-box" class="history-container">最近搜尋：<span id="history-list">無</span></div>
         </div>
 
         <div class="filter-group">
@@ -365,13 +404,35 @@
             </select>
         </div>
 
+        <div style="display: flex; gap: 10px; width: 100%; box-sizing: border-box;" class="filter-group">
+            <div style="flex: 1;">
+                <label for="diff-select">難度級別：</label>
+                <select id="diff-select">
+                    <option value="all">-- 所有難度 --</option>
+                    <option value="1">★☆☆☆☆ 新手入門</option>
+                    <option value="3">★★★☆☆ 中等難度</option>
+                    <option value="5">★★★★★ 挑戰極限</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label for="user-level-select">🧘 我的行山能力：</label>
+                <select id="user-level-select">
+                    <option value="beginner">🐣 行山新手 (年資短/體力一般)</option>
+                    <option value="intermediate" selected>🏃 經驗豐富 (有規律運動/行過中級山)</option>
+                    <option value="expert">🧗 資深老手 (極佳體能/精通陡峭地形)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 1. 修改：已徹底移除原本的 #transport-select 的士/自駕選單，預設改用公共交通模擬算法 -->
+
         <div class="filter-group">
-            <label for="diff-select">難度級別：</label>
-            <select id="diff-select">
-                <option value="all">-- 所有難度 --</option>
-                <option value="1">★☆☆☆☆ 新手入門</option>
-                <option value="3">★★★☆☆ 中等難度</option>
-                <option value="5">★★★★★ 挑戰極限</option>
+            <label for="duration-select">⏱️ 您的個人化實際耗時篩選：</label>
+            <select id="duration-select">
+                <option value="all">不限時數</option>
+                <option value="2">2 小時內搞定</option>
+                <option value="4">4 小時內搞定</option>
+                <option value="6">6 小時內搞定</option>
             </select>
         </div>
 
@@ -384,33 +445,13 @@
             </select>
         </div>
 
-        <button id="search-btn" class="main-search-btn">搜尋路線</button>
+        <button id="search-btn" class="main-search-btn">搜尋個人化路線</button>
     </div>
 
+    <!-- 路線卡片列表容器 -->
     <div id="results-list" style="margin-top: 25px;"></div>
 
-    <div id="ai-suggestion-box" style="margin-top: 20px; padding: 18px; background-color: var(--card-bg); border-left: 6px solid #2e7d32; border-radius: 4px 16px 16px 4px; box-shadow: 0 4px 12px var(--box-shadow); display: none; border: 1px solid var(--card-border); border-left: 6px solid #2e7d32;">
-        
-        <div id="offline-banner" class="offline-alert" style="display: none;">📴 當前處於離線狀態，正顯示緩存天氣</div>
-
-        <h3 style="margin-top: 0; color: #2e7d32;">🤖 AI 行山教練建議：</h3>
-        
-        <div id="weather-banner" style="background: #f1f8ff; border: 1px solid #c8e1ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; color: #0366d6; display: none;">
-            📊 <strong>天文台實時天氣：</strong> <span id="weather-metrics">🌡️ 氣候：--°C | 💧 濕度：--% | ☀️ 紫外線：--</span>
-            <div id="weather-warning" style="margin-top: 7px;"></div>
-        </div>
-
-        <div class="chart-container">
-            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-color);">📅 未來 3 天氣溫趨勢 (天文台九天預報)</h4>
-            <canvas id="weatherChart" style="max-height: 200px; width: 100%;"></canvas>
-        </div>
-
-        <div id="ai-loading" style="color: var(--secondary-text); font-style: italic;">AI 教練正在分析實時天氣與未來預報... 🕒</div>
-        <p id="ai-text" style="white-space: pre-line; line-height: 1.7; font-size: 15px; color: var(--text-color);"></p>
-    </div>
-
     <script>
-        // 1. 數據庫擴充：加上標籤 (Tags) 陣列
         const hikingRoutes = [
             { 
                 name: "麥理浩徑第一、二段", 
@@ -420,6 +461,8 @@
                 end: "北潭凹", 
                 distance: "24km", 
                 distanceNum: 24,
+                baseDuration: 7.0,
+                station: "西貢",
                 views: "海景/萬宜水庫",
                 tags: ['海景', '萬宜水庫', '長途挑戰'],
                 startCoords: "22.3957,114.3233",
@@ -433,6 +476,8 @@
                 end: "北潭凹", 
                 distance: "12km", 
                 distanceNum: 12,
+                baseDuration: 4.0,
+                station: "西貢",
                 views: "海景/大浪西灣",
                 tags: ['海景', '大浪西灣', '新手推薦'],
                 startCoords: "22.3994,114.3582",
@@ -446,6 +491,8 @@
                 end: "大浪灣", 
                 distance: "8.5km", 
                 distanceNum: 8.5,
+                baseDuration: 3.0,
+                station: "赤柱",
                 views: "海景/石澳",
                 tags: ['海景', '石澳', '新手推薦', '落日'],
                 startCoords: "22.2312,114.2384",
@@ -459,6 +506,8 @@
                 end: "梅窩", 
                 distance: "9km", 
                 distanceNum: 9,
+                baseDuration: 4.5,
+                station: "昂坪",
                 views: "山景/芒草",
                 tags: ['山景', '芒草', '高難度'],
                 startCoords: "22.2562,113.9298",
@@ -472,6 +521,8 @@
                 end: "昂坪", 
                 distance: "7km", 
                 distanceNum: 7,
+                baseDuration: 4.5,
+                station: "昂坪",
                 views: "山景/日出",
                 tags: ['山景', '日出', '高難度'],
                 startCoords: "22.2562,113.9298",
@@ -479,32 +530,18 @@
             }
         ];
 
-        // 狀態變數
         let userLocation = null; 
         let selectedTags = [];
-        let myChartInstance = null; // 儲存 Chart.js 實例避免重疊重繪
         let savedFavorites = JSON.parse(localStorage.getItem('hikingFavorites')) || [];
-        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
 
-        // DOM 元素
         const searchBtn = document.getElementById('search-btn');
         const gpsBtn = document.getElementById('gps-btn');
         const keywordInput = document.getElementById('keyword-input');
-        const historyListSpan = document.getElementById('history-list');
         const tagsCloudDiv = document.getElementById('tags-cloud');
         const resultsList = document.getElementById('results-list');
-        const aiBox = document.getElementById('ai-suggestion-box');
-        const aiLoading = document.getElementById('ai-loading');
-        const aiText = document.getElementById('ai-text');
-        const offlineBanner = document.getElementById('offline-banner');
-        
-        const weatherBanner = document.getElementById('weather-banner');
-        const weatherMetricsSpan = document.getElementById('weather-metrics');
-        const weatherWarningSpan = document.getElementById('weather-warning');
         const favoriteCountSpan = document.getElementById('favorite-count');
         const themeToggleBtn = document.getElementById('theme-toggle');
 
-        // 初始化：動態建立標籤按鈕
         function initTagsUI() {
             const allTags = new Set();
             hikingRoutes.forEach(r => r.tags.forEach(t => allTags.add(t)));
@@ -526,35 +563,6 @@
             });
         }
 
-        // 初始化：更新與顯示歷史搜尋紀錄 (功能 4)
-        function renderHistoryUI() {
-            if (searchHistory.length === 0) {
-                historyListSpan.innerHTML = '無';
-                return;
-            }
-            historyListSpan.innerHTML = '';
-            searchHistory.forEach(word => {
-                const span = document.createElement('span');
-                span.className = 'history-tag';
-                span.innerText = word;
-                span.addEventListener('click', () => {
-                    keywordInput.value = word;
-                    searchBtn.click();
-                });
-                historyListSpan.appendChild(span);
-            });
-        }
-
-        function saveSearchWord(word) {
-            if (!word) return;
-            searchHistory = searchHistory.filter(w => w !== word); // 移除重複
-            searchHistory.unshift(word); // 推到最前
-            if (searchHistory.length > 3) searchHistory.pop(); // 限制 3 個
-            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-            renderHistoryUI();
-        }
-
-        // Haversine GPS 計算公式
         function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -563,7 +571,6 @@
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))); 
         }
 
-        // 定位按鈕
         gpsBtn.addEventListener('click', () => {
             if (!navigator.geolocation) return;
             gpsBtn.innerText = "⏳ 定位中...";
@@ -578,36 +585,57 @@
             );
         });
 
-        // 搜尋主邏輯（結合多選標籤與關鍵字比對）
+        function computeRouteETA(baseDuration, userLevel, currentTemp, currentHumidity) {
+            let eta = baseDuration;
+            if (userLevel === 'beginner') eta *= 1.4;
+            else if (userLevel === 'expert') eta *= 0.85;
+
+            if (currentTemp >= 30 || currentHumidity >= 85) {
+                eta *= 1.15;
+            }
+            return parseFloat(eta.toFixed(1));
+        }
+
         searchBtn.addEventListener('click', function() {
             const keyword = keywordInput.value.trim().toLowerCase();
             const selectedRegion = document.getElementById('region-select').value;
             const selectedDiff = document.getElementById('diff-select').value;
             const sortOption = document.getElementById('sort-select').value;
+            const durationLimit = document.getElementById('duration-select').value;
+            const userLevel = document.getElementById('user-level-select').value;
             
-            saveSearchWord(keyword);
-            aiBox.style.display = 'none';
             resultsList.innerHTML = '';
+
+            const cachedCurrent = JSON.parse(localStorage.getItem('cache_current_weather'));
+            const testTemp = cachedCurrent?.temperature?.data?.[0]?.value ?? 25;
+            const testHumid = cachedCurrent?.humidity?.data?.[0]?.value ?? 75;
 
             let results = hikingRoutes.filter(route => {
                 const matchRegion = (selectedRegion === 'all' || route.region === selectedRegion);
                 const matchDiff = (selectedDiff === 'all' || route.difficulty === selectedDiff);
                 
-                // 關鍵字模糊比對
                 let matchKeyword = true;
                 if (keyword !== '') {
                     matchKeyword = route.name.toLowerCase().includes(keyword) || 
                                    route.views.toLowerCase().includes(keyword) || 
                                    route.start.toLowerCase().includes(keyword);
                 }
-
-                // 功能 4：多重標籤過濾陣列判定 (必須包含所有勾選的標籤)
+                
                 let matchTags = true;
                 if (selectedTags.length > 0) {
                     matchTags = selectedTags.every(tag => route.tags.includes(tag));
                 }
-                
-                return matchRegion && matchDiff && matchKeyword && matchTags;
+
+                const personalTrueDuration = computeRouteETA(route.baseDuration, userLevel, testTemp, testHumid);
+                let matchDuration = true;
+                if (durationLimit !== 'all') {
+                    const limitHours = parseFloat(durationLimit);
+                    if (personalTrueDuration > limitHours) {
+                        matchDuration = false;
+                    }
+                }
+
+                return matchRegion && matchDiff && matchKeyword && matchTags && matchDuration;
             });
 
             if (sortOption === 'distance-asc') results.sort((a, b) => a.distanceNum - b.distanceNum);
@@ -621,16 +649,17 @@
 
                     let distanceString = "未知 (請點擊定位)";
                     let distanceClass = "";
+                    let kmNum = 0;
+
                     if (userLocation) {
                         const startParts = route.startCoords.split(',');
-                        const km = calculateHaversineDistance(userLocation.lat, userLocation.lng, parseFloat(startParts[0]), parseFloat(startParts[1]));
-                        distanceString = `${km.toFixed(2)} km`;
+                        kmNum = calculateHaversineDistance(userLocation.lat, userLocation.lng, parseFloat(startParts[0]), parseFloat(startParts[1]));
+                        distanceString = `${kmNum.toFixed(2)} km`;
                         distanceClass = "gps-distance-tag";
                     }
 
-                    // 渲染卡片內部的標籤樣式
                     const tagBadges = route.tags.map(t => `<span style="background:#e8f5e9; color:#2e7d32;">#${t}</span>`).join('');
-
+                    
                     const card = document.createElement('div');
                     card.className = 'route-card';
                     card.innerHTML = `
@@ -638,18 +667,21 @@
                         <button class="love-btn">${isFavorited ? '❤️' : '🤍'}</button>
                         <div class="route-details">
                             <span>🏃 全程 ${route.distance}</span>
+                            <span class="eta-badge">⏱️ 基底: ${route.baseDuration}小時</span>
+                            <span>📡 分區測量站: ${route.station}</span>
                             <span>🏁 ${route.start} → ${route.end}</span>
                             ${tagBadges}
-                            <span class="${distanceClass}">📍 距離你: ${distanceString}</span>
+                            <span class="${distanceClass}" data-km="${kmNum}">📍 距離你: ${distanceString}</span>
                         </div>
                         <div class="card-actions">
-                            <button class="ask-ai-btn">🤖 AI 天氣與未來預報</button>
+                            <button class="ask-ai-btn">🤖 AI 天氣與分區智能建議</button>
                             <a href="${transitUrl}" target="_blank" class="nav-btn">🚌 交通導航</a>
                             <a href="${googleMapsUrl}" target="_blank" class="map-btn">📍 路線完整地圖</a>
                         </div>
+                        <div class="card-ai-box" style="display:none;"></div>
                     `;
 
-                    card.querySelector('.ask-ai-btn').addEventListener('click', () => { triggerAI(route); });
+                    card.querySelector('.ask-ai-btn').addEventListener('click', () => { triggerCardAI(route, card); });
                     card.querySelector('.love-btn').addEventListener('click', function() {
                         const idx = savedFavorites.indexOf(route.name);
                         if (idx === -1) { savedFavorites.push(route.name); this.innerText = '❤️'; }
@@ -661,160 +693,228 @@
                     resultsList.appendChild(card);
                 });
             } else {
-                resultsList.innerHTML = `<p style="text-align:center; color:#999; margin-top:20px;">未搵到符合條件的路線。</p>`;
+                resultsList.innerHTML = `<p style="text-align:center; color:#999; margin-top:20px;">未搵到符合條件的個人化時數路線，建議將篩選放寬。</p>`;
             }
         });
 
-        // 功能 2 & 3：同時抓取天文台「即時天氣」與「九天預報 API」，內建離線緩存備載機制
-        async function fetchHKWeatherAndForecast() {
+        async function fetchHKWeatherAndForecast(targetStation) {
             let isOffline = false;
             let currentData = null;
             let forecastData = null;
 
-            // 1. 抓取即時天氣 (rhrread)
             try {
                 const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+                if (!res.ok) throw new Error("Network error");
                 currentData = await res.json();
-                localStorage.setItem('cache_current_weather', JSON.stringify(currentData)); // 快取起來
+                localStorage.setItem('cache_current_weather', JSON.stringify(currentData));
             } catch (e) {
-                console.warn("即時天氣獲取失敗，啟動離線快取數據替代");
                 isOffline = true;
-                currentData = JSON.parse(localStorage.getItem('cache_current_weather')) || { temperature: { data: [{ value: 25 }] }, humidity: { data: [{ value: 75 }] }, uvIndex: "" };
+                currentData = JSON.parse(localStorage.getItem('cache_current_weather'));
             }
 
-            // 2. 抓取九天天氣預報 (fnd)
             try {
                 const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc');
+                if (!res.ok) throw new Error("Network error");
                 forecastData = await res.json();
-                localStorage.setItem('cache_forecast_weather', JSON.stringify(forecastData)); // 快取起來
+                localStorage.setItem('cache_forecast_weather', JSON.stringify(forecastData));
             } catch (e) {
-                console.warn("九天預報獲取失敗，啟動離線快取數據替代");
                 isOffline = true;
-                forecastData = JSON.parse(localStorage.getItem('cache_forecast_weather')) || { weatherForecast: [] };
+                forecastData = JSON.parse(localStorage.getItem('cache_forecast_weather'));
             }
 
-            // 數據解析清洗
-            let hkTemp = currentData.temperature?.data[0]?.value || 25;
-            let hkHumidity = currentData.humidity?.data[0]?.value || 75;
-            let hkUvIndex = currentData.uvIndex?.data?.[0]?.value || 0;
+            if (!currentData) {
+                currentData = { temperature: { data: [{ place: "天文台", value: 25 }] }, humidity: { data: [{ value: 75 }] } };
+            }
+            if (!forecastData || !forecastData.weatherForecast) {
+                forecastData = { weatherForecast: [] };
+            }
+
+            let matchedTemp = null;
+            if (currentData.temperature && currentData.temperature.data) {
+                const stationsList = currentData.temperature.data;
+                const found = stationsList.find(item => item.place.includes(targetStation));
+                if (found) {
+                    matchedTemp = found.value;
+                } else {
+                    const fallbackStation = stationsList.find(item => item.place === "天文台") || stationsList[0];
+                    matchedTemp = fallbackStation ? fallbackStation.value : 25;
+                }
+            } else {
+                matchedTemp = 25;
+            }
+
+            let hkHumidity = currentData.humidity?.data?.[0]?.value ?? 75;
+            let hkUvIndex = currentData.uvIndex?.data?.[0]?.value ?? 0;
             
             let warningTexts = [];
             if (currentData.warningMessage) {
                 currentData.warningMessage.forEach(msg => warningTexts.push(msg));
             }
 
-            // 提取未來三天的天氣標籤、最高與最低氣溫
-            let labels = [];
-            let maxTemps = [];
-            let minTemps = [];
-            let futureRainAlert = false;
+            let textForecastList = [];
+            let futureRainOrThunderAlert = false;
+            const threeDayForecast = forecastData.weatherForecast.slice(0, 3);
 
-            if (forecastData.weatherForecast && forecastData.weatherForecast.length >= 3) {
-                for (let i = 0; i < 3; i++) {
-                    const day = forecastData.weatherForecast[i];
-                    labels.push(day.forecastDate.substring(4, 6) + '/' + day.forecastDate.substring(6, 8)); // 格式化為 MM/DD
-                    maxTemps.push(day.forecastMaxTemp.value);
-                    minTemps.push(day.forecastMinTemp.value);
-                    // 檢查未來三天內是否有雨
-                    if (day.forecastWeather.includes('雨') || day.forecastWeather.includes('驟雨')) {
-                        futureRainAlert = true;
+            if (threeDayForecast.length > 0) {
+                threeDayForecast.forEach(day => {
+                    let weekName = day.week ?? "明天";
+                    let maxT = day.forecastMaxTemp?.value ?? 28;
+                    let minT = day.forecastMinTemp?.value ?? 22;
+                    let psrText = day.PSR ?? "低"; 
+                    let uvValue = day.forecastMaxUV?.value ?? 0;
+
+                    textForecastList.push({
+                        week: weekName, tempRange: `${minT}-${maxT}°C`, psr: psrText, uv: uvValue
+                    });
+
+                    const weatherText = day.forecastWeather ?? "";
+                    if (weatherText.includes('雨') || weatherText.includes('雷')) {
+                        futureRainOrThunderAlert = true;
                     }
-                }
+                });
+            } else {
+                textForecastList = [
+                    { week: "明天", tempRange: "22-28°C", psr: "低", uv: 2 },
+                    { week: "後天", tempRange: "23-29°C", psr: "低", uv: 3 },
+                    { week: "大後天", tempRange: "22-28°C", psr: "中", uv: 1 }
+                ];
             }
 
             return {
-                temp: hkTemp, humidity: hkHumidity, uv: hkUvIndex,
+                temp: matchedTemp, humidity: hkHumidity, uv: hkUvIndex,
                 warningRaw: warningTexts.join('、'), isOffline: isOffline,
-                chart: { labels, maxTemps, minTemps },
-                futureRainAlert: futureRainAlert
+                textForecastList: textForecastList,
+                futureRainOrThunderAlert: futureRainOrThunderAlert
             };
         }
 
-        // 功能 1：使用 Chart.js 動態繪製折線圖
-        function drawWeatherChart(chartData) {
-            const ctx = document.getElementById('weatherChart').getContext('2d');
-            
-            // 如果已存在舊的圖表實例，必須先銷毀，避免移動滑鼠時發生圖表跳動閃爍
-            if (myChartInstance) {
-                myChartInstance.destroy();
-            }
-
-            myChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: '最高氣溫 (°C)',
-                            data: chartData.maxTemps,
-                            borderColor: '#d9381e',
-                            backgroundColor: 'rgba(217, 56, 30, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.3
-                        },
-                        {
-                            label: '最低氣溫 (°C)',
-                            data: chartData.minTemps,
-                            borderColor: '#1a73e8',
-                            backgroundColor: 'rgba(26, 115, 232, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { ticks: { font: { size: 10 } } },
-                        x: { ticks: { font: { size: 10 } } }
-                    },
-                    plugins: { legend: { labels: { font: { size: 11 } } } }
+        // 2. 內嵌式 AI 執行邏輯（整合 GPS 智能大眾運輸時間模擬公式）
+        async function triggerCardAI(route, currentCardElement) {
+            document.querySelectorAll('.card-ai-box').forEach(box => {
+                if (box !== currentCardElement.querySelector('.card-ai-box')) {
+                    box.style.display = 'none';
+                    box.innerHTML = '';
                 }
             });
-        }
 
-        // 觸發 AI 看板與圖表工作流
-        async function triggerAI(route) {
+            const aiBox = currentCardElement.querySelector('.card-ai-box');
             aiBox.style.display = 'block';
-            aiLoading.style.display = 'block';
-            weatherBanner.style.display = 'none';
-            aiText.innerText = '';
-            aiBox.scrollIntoView({ behavior: 'smooth' });
+            aiBox.innerHTML = `<div style="color: var(--secondary-text); font-style: italic;">AI 正在連動分區氣象台、系統時鐘與精算 GPS 公共交通... 🕒</div>`;
+            aiBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            const weather = await fetchHKWeatherAndForecast();
+            const weather = await fetchHKWeatherAndForecast(route.station);
 
-            // PWA 離線容災：如果斷網，則高亮顯示離線緩存 Banner
-            offlineBanner.style.display = weather.isOffline ? 'block' : 'none';
+            // 1. 改良交通與總行程時間計算公式邏輯
+            let transitRoundTripHours = 2.4; // 預設全港平均大眾運輸來回為 2.4 小時
+            let algorithmNote = "(未開啟 GPS 定位，已採用全港公共交通來回平均時間 2.4 小時進行估算)";
 
-            // 更新天氣數據文字
-            weatherMetricsSpan.innerHTML = `實時 🌡️ 氣候：${weather.temp}°C | 💧 濕度：${weather.humidity}% | ☀️ 紫外線：${weather.uv}`;
-            weatherWarningSpan.innerHTML = weather.warningRaw ? `<span class="danger-alert">⚠️ 天文台警報：${weather.warningRaw}</span>` : '🟢 目前無極端天氣警告';
-            weatherBanner.style.display = 'block';
-
-            // 繪製未來天氣圖表
-            if (weather.chart.labels.length > 0) {
-                drawWeatherChart(weather.chart);
+            if (userLocation) {
+                const startParts = route.startCoords.split(',');
+                const distanceKM = calculateHaversineDistance(userLocation.lat, userLocation.lng, parseFloat(startParts[0]), parseFloat(startParts[1]));
+                
+                // 單程大眾運輸時間（分鐘）= (distance * 3) + 20
+                const singleWayMinutes = (distanceKM * 3) + 20;
+                // 來回交通總時數（小時）= (單程時間 * 2) / 60
+                transitRoundTripHours = (singleWayMinutes * 2) / 60;
+                
+                // 格式化輸出
+                transitRoundTripHours = parseFloat(transitRoundTripHours.toFixed(1));
+                algorithmNote = `(已根據您與起點的實時 GPS 距離：${distanceKM.toFixed(2)} km 估算來回大眾運輸時間)`;
             }
 
-            // 改良 AI 智能判斷邏輯（整合未來三天降雨預警）
-            setTimeout(() => {
-                let aiSuggestion = `【AI 行山教練智能決策 —— ${route.name}】\n\n`;
-                aiSuggestion += `💧 飲水補給建議：目前體感偏暖，建議準備約 ${weather.temp > 28 ? '2.0' : '1.5'} 公升飲用水。 \n\n`;
-                aiSuggestion += `🎒 戶外裝備建議：沿途特色為 ${route.views}。`;
-                
-                if (weather.uv >= 6) {
-                    aiSuggestion += `\n☀️ 🚨 紫外線高企：請備好 SPF50+ 防曬、防曬帽與太陽眼鏡。`;
-                }
-                if (weather.futureRainAlert) {
-                    aiSuggestion += `\n⚠️ 🚨 【天文台降雨預警】：AI 發現預報系統顯示未來 3 天內有機率出現降雨或驟雨！山路泥濘易滑，請務必隨身攜帶雨具（防風防水外套/雨傘），並隨時注意山洪與天氣轉變！`;
-                } else {
-                    aiSuggestion += `\n🟢 預報顯示未來數天無顯著降雨，路面狀況預期良好。`;
-                }
+            const userLevel = document.getElementById('user-level-select').value;
+            const dynamicETA = computeRouteETA(route.baseDuration, userLevel, weather.temp, weather.humidity);
+            
+            // 全行程預估時間 = 來回交通總時數 + 實際行山時數
+            const totalJourneyTime = parseFloat((transitRoundTripHours + dynamicETA).toFixed(1));
 
-                aiLoading.style.display = 'none';
-                aiText.innerText = aiSuggestion;
-            }, 1000);
+            // 日落時間判定與倒數
+            const now = new Date();
+            const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+            const sunsetTotalMinutes = 19 * 60 + 10; 
+            const diffMinutes = sunsetTotalMinutes - currentTotalMinutes;
+
+            let sunsetText = "";
+            if (diffMinutes > 0) {
+                const textHour = Math.floor(diffMinutes / 60);
+                const textMin = diffMinutes % 60;
+                sunsetText = `🌇 今日預估日落時間：19:10 (距離天黑還有 ${textHour} 小時 ${textMin} 分鐘)`;
+            } else {
+                sunsetText = `🌇 今日日落時間：19:10 (注意：目前天色已黑，切勿此時入山！ )`;
+            }
+
+            const currentHourDecimal = now.getHours() + (now.getMinutes() / 60);
+            const estimatedFinishedHour = currentHourDecimal + dynamicETA;
+            const sunsetHourDecimal = 19 + (10 / 60);
+
+            let nightWarningHTML = "";
+            if (estimatedFinishedHour >= sunsetHourDecimal) {
+                nightWarningHTML = `
+                    <div class="warning-alert-orange">
+                        ⚠️【天黑落山警告】<br>
+                        系統偵測到當前時間為 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}，加上您個人化預估完成時數 (${dynamicETA}小時)，預計完成行山時天色已黑！請立刻評估是否提早出發、縮短行程或攜帶頭燈！
+                    </div>`;
+            }
+
+            let forecastHTML = '';
+            weather.textForecastList.forEach(item => {
+                forecastHTML += `
+                    <div class="forecast-card">
+                        <div class="forecast-card-title">${item.week}</div>
+                        <div>${item.tempRange}</div>
+                        <div>🌧️ 降雨: ${item.psr}</div>
+                        <div>☀️ UV: ${item.uv}</div>
+                    </div>`;
+            });
+
+            let aiReport = `【AI 行山教練分區決策報告 —— ${route.name}】\n\n`;
+            aiReport += `📡 實時分區觀測（${route.station}站）：🌡️ 氣溫 ${weather.temp}°C | 💧 濕度 ${weather.humidity}% | ☀️ 紫外線 ${weather.uv}\n`;
+            aiReport += weather.warningRaw ? `⚠️ 天文台警報：${weather.warningRaw}\n\n` : `🟢 目前該分區無惡劣天氣警告\n\n`;
+            
+            const routeDiff = parseInt(route.difficulty);
+            if (userLevel === 'beginner' && routeDiff === 5) {
+                aiReport += `🚨【越級挑戰警告】\n偵測到您目前為新手體能，而${route.name}難度極高！請特別注意，在此環境下預估完成時間已拉長，每行 20 分鐘請強制休息！\n\n`;
+            } else if (userLevel === 'expert' && routeDiff === 1) {
+                aiReport += `😎【輕鬆漫步】\n此路線難度較低，您可以輕鬆駕馭。\n\n`;
+            } else {
+                let matchedText = "";
+                if (userLevel === 'beginner') matchedText = "🐣 新手適配中低難度路線，請保持安全均速。";
+                else if (userLevel === 'intermediate') matchedText = "🏃 您的能力與此路線完美適配！可維持標準穩定配速。";
+                else if (userLevel === 'expert') matchedText = "🧗 您是專業老手，能輕鬆應對。";
+                aiReport += `⚖️【體能配速評估】\n${matchedText}\n\n`;
+            }
+
+            if (weather.temp >= 30 || weather.humidity >= 85) {
+                aiReport += `🔥【環境悶熱警報】\n當前分區氣候酷熱/悶熱，體能消耗加快，AI 時間已包含 15% 補水緩衝。\n\n`;
+            }
+
+            aiReport += `💧 補給建議：準備約 ${weather.temp > 28 ? '2.5' : '1.5'} 公升飲用水。\n`;
+            aiReport += `🎒 裝備建議：沿途特色為 ${route.views}。請穿著高防滑係數行山鞋。`;
+            if (weather.uv >= 6) aiReport += ` 務必做好防曬，配戴太陽眼鏡。`;
+            if (weather.futureRainOrThunderAlert) aiReport += `\n\n⚠️ 天氣提示：未來 3 天預報顯示局部地區有雨，請帶備雨具。`;
+
+            // 更新 HTML
+            aiBox.innerHTML = `
+                <div id="offline-banner" class="offline-alert" style="display: ${weather.isOffline ? 'block' : 'none'};">📴 當前處於離線狀態，正顯示緩存天氣</div>
+                
+                <h4 style="margin-top: 0; color: #2e7d32; margin-bottom: 10px;">🤖 本地卡片 AI 智能建議：</h4>
+                
+                <div style="margin-bottom: 10px; font-size: 14px; line-height: 1.6;">
+                    <div style="font-weight: bold; color: #2e7d32;">⏱️ AI 預估純行山時間：${dynamicETA} 小時</div>
+                    <div style="font-weight: bold; color: #1a73e8;">🚌 今日總行程預估出門時間（大眾運輸）：約 ${totalJourneyTime} 小時</div>
+                    <div style="font-size: 12px; color: var(--secondary-text); font-weight: 500;">${algorithmNote}</div>
+                </div>
+
+                <div class="weather-banner">
+                    <div>${sunsetText}</div>
+                </div>
+
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">📅 未來 3 日預報</div>
+                <div class="forecast-container">${forecastHTML}</div>
+
+                <p style="white-space: pre-line; line-height: 1.6; font-size: 14px; margin-bottom: 0;">${aiReport}</p>
+                ${nightWarningHTML}
+            `;
         }
 
         // 黑夜模式切換
@@ -829,21 +929,10 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        // 頁面初次運作
+        // 初始化
         initTagsUI();
-        renderHistoryUI();
+        favoriteCountSpan.innerText = `已收藏 ${savedFavorites.length} 條路線`;
         searchBtn.click();
-
-        // ==========================================
-        // 3. 【功能 2：PWA 離線標準 Service Worker 註冊】
-        // ==========================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('PWA SW 註冊成功，守護離線狀態中！', reg.scope))
-                    .catch(err => console.error('Service Worker 註冊失敗:', err));
-            });
-        }
     </script>
 </body>
 </html>
