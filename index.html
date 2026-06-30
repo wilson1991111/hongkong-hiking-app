@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>香港 AI 行山路線搜尋 - 專業戶外安全航海版</title>
+    <title>HikingRice 香港行山路線搜尋 - 專業安全防禦 PWA 版</title>
     <style>
         :root {
             --bg-color: #f7f9f7;
@@ -16,6 +16,9 @@
             --badge-bg: #f0f4f0;
             --input-bg: #fafafa;
             --input-border: #e0e0e0;
+            --dashboard-bg: #e8f5e9;
+            --dashboard-border: #c8e6c9;
+            --dashboard-text: #2e7d32;
         }
 
         [data-theme="dark"] {
@@ -29,6 +32,9 @@
             --badge-bg: #2d372d;
             --input-bg: #252525;
             --input-border: #444444;
+            --dashboard-bg: #1b3820;
+            --dashboard-border: #2d5a32;
+            --dashboard-text: #81c784;
         }
 
         body { 
@@ -86,6 +92,45 @@
             color: var(--secondary-text);
             text-align: center;
             margin-bottom: 25px;
+        }
+
+        /* 全域今日天時資訊牌 */
+        .global-dashboard {
+            background-color: var(--dashboard-bg);
+            border: 1px solid var(--dashboard-border);
+            color: var(--text-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px var(--box-shadow);
+        }
+        .dashboard-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--dashboard-text);
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .dashboard-item {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .dashboard-item strong {
+            color: var(--dashboard-text);
+        }
+        .dashboard-warning-area {
+            grid-column: 1 / -1;
+            border-top: 1px dashed var(--input-border);
+            padding-top: 8px;
+            margin-top: 4px;
         }
 
         .search-box { 
@@ -231,7 +276,6 @@
             font-weight: 600;
         }
 
-        /* 建議2：剖面圖與地形分佈 CSS */
         .elevation-wrapper {
             margin: 12px 0;
             background: var(--input-bg);
@@ -257,9 +301,9 @@
             height: 100%;
             transition: width 0.3s;
         }
-        .elev-flat { background-color: #4caf50; }  /* 平緩泥路 */
-        .elev-stairs { background-color: #ff9800; }/* 梯級路段 */
-        .elev-steep { background-color: #f44336; } /* 陡峭碎石 */
+        .elev-flat { background-color: #4caf50; }  
+        .elev-stairs { background-color: #ff9800; }
+        .elev-steep { background-color: #f44336; } 
         
         .elevation-legend {
             display: flex;
@@ -310,38 +354,22 @@
         }
 
         .nav-btn { background-color: #1a73e8; color: white; }
-        
-        .gpx-btn { 
-            background-color: #7b1fa2; 
-            color: white; 
-        } /* GPX 匯出紫色按鈕 */
-
+        .gpx-btn { background-color: #7b1fa2; color: white; } 
         .map-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--input-border);
         }
 
-        .danger-alert {
-            color: #d9381e !important;
-            font-weight: bold;
-            background-color: #fff0f0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #ffcccc;
-            display: inline-block;
-            margin-top: 5px;
-        }
-        
         .warning-alert-orange {
             color: #e65100 !important;
             font-weight: bold;
             background-color: #fff3e0;
-            padding: 10px 14px;
-            border-radius: 6px;
+            padding: 12px 16px;
+            border-radius: 8px;
             border: 1px solid #ffe0b2;
             display: block;
-            margin-top: 10px;
+            margin-top: 12px;
             line-height: 1.5;
         }
         [data-theme="dark"] .warning-alert-orange {
@@ -388,11 +416,6 @@
             border: 1px solid #ffe0b2;
             font-weight: bold;
         }
-        [data-theme="dark"] .eta-badge {
-            background-color: #3e2723;
-            color: #ffb74d;
-            border: 1px solid #5d4037;
-        }
 
         .card-ai-box {
             margin-top: 15px;
@@ -403,23 +426,7 @@
             border: 1px solid var(--card-border);
             transition: all 0.3s ease;
         }
-        
-        .weather-banner {
-            background: #f1f8ff;
-            border: 1px solid #c8e1ff;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 13px;
-            color: #0366d6;
-        }
-        [data-theme="dark"] .weather-banner {
-            background: #141d26;
-            border: 1px solid #243342;
-            color: #388bfd;
-        }
 
-        /* 建議1&3：緊急撤退與攝影盒子 */
         .ai-safety-box {
             background-color: #fff0f0;
             border: 1px solid #ffcccc;
@@ -453,10 +460,7 @@
             border-radius: 10px;
             margin-top: 15px;
         }
-        .ai-suggestion-content p {
-            margin: 6px 0;
-            font-size: 14px;
-        }
+        .ai-suggestion-content p { margin: 6px 0; font-size: 14px; }
         .ai-gear-list {
             list-style: none;
             padding-left: 0;
@@ -475,6 +479,47 @@
             align-items: center;
             gap: 6px;
         }
+
+        .direction-switch-container {
+            display: flex;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .direction-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--secondary-text);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .direction-btn.active {
+            background-color: #2e7d32;
+            color: white;
+        }
+        [data-theme="dark"] .direction-btn.active {
+            background-color: #81c784;
+            color: #121212;
+        }
+
+        .water-danger-notice {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 10px;
+            font-size: 13px;
+            margin-top: 8px;
+            border-radius: 4px;
+            color: #e65100;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .water-danger-notice { background-color: #2b1d10; color: #ffb74d; }
     </style>
 </head>
 <body>
@@ -487,12 +532,29 @@
     <h1>⛰️ HikingRice 香港行山搜尋</h1>
     <p id="subtitle">尋找你的下一條行山路線 x 專業安全撤退精算教練</p>
 
+    <div id="global-astro-dashboard" class="global-dashboard">
+        <p class="dashboard-title">☀️ 今日香港全域客觀天時與天文台動態狀態</p>
+        <div class="dashboard-grid">
+            <div class="dashboard-item">
+                🌆 客觀日落時間：<strong id="dash-sunset-time">19:10</strong><br>
+                ✨ 攝影魔幻時刻：<span id="dash-magic-hour" style="font-weight: 600; color: #f57c00;">18:10 - 19:10</span>
+            </div>
+            <div class="dashboard-item">
+                🌡️ 實時核心天氣：<span id="dash-general-weather">正在獲取大盤數據...</span><br>
+                ⏳ 距離天黑倒數：<span id="dash-countdown" style="font-weight: bold;">-- 小時 -- 分鐘</span>
+            </div>
+            <div id="dash-warning-box" class="dashboard-item dashboard-warning-area">
+                ⚠️ 天文台實時警告狀態：<span id="dash-warning-text" style="color: #2e7d32; font-weight: bold;">🟢 目前無惡劣天氣警告</span>
+            </div>
+        </div>
+    </div>
+
     <div class="search-box">
-        <button id="gps-btn" class="gps-btn">📍 獲取我的位置計算距離與精確車程</button>
+        <button id="gps-btn" class="gps-btn">📍 自動定位：計算附近路線及車程</button>
 
         <div class="filter-group">
             <label for="keyword-input">關鍵字搜尋：</label>
-            <input type="text" id="keyword-input" placeholder="搜尋景觀、起點或關鍵字（如：芒草）...">
+            <input type="text" id="keyword-input" placeholder="搜尋景觀、起點或關鍵字（如：芒草、大峽谷）...">
         </div>
 
         <div class="filter-group">
@@ -504,9 +566,10 @@
             <label for="region-select">選擇地區：</label>
             <select id="region-select">
                 <option value="all">-- 所有地區 --</option>
-                <option value="sai-kung">西貢 (例如：麥理浩徑)</option>
-                <option value="hk-island">港島 (例如：龍脊)</option>
-                <option value="lantau">大嶼山 (例如：大東山)</option>
+                <option value="sai-kung">西貢區 (例如：麥理浩徑、西灣亭)</option>
+                <option value="hk-island">港島區 (例如：龍脊、太平山頂)</option>
+                <option value="lantau">大嶼山 (例如：大東山、鳳凰山)</option>
+                <option value="new-territories">新界 (例如：大帽山、城門水塘)</option>
             </select>
         </div>
 
@@ -531,7 +594,9 @@
                 <select id="diff-select">
                     <option value="all">-- 所有難度 --</option>
                     <option value="1">★☆☆☆☆ 新手入門</option>
+                    <option value="2">★★☆☆☆ 輕鬆休閒</option>
                     <option value="3">★★★☆☆ 中等難度</option>
+                    <option value="4">★★★★☆ 進階挑戰</option>
                     <option value="5">★★★★★ 挑戰極限</option>
                 </select>
             </div>
@@ -555,112 +620,123 @@
             </select>
         </div>
 
-        <button id="search-btn" class="main-search-btn">搜尋個人化路線</button>
+        <button id="search-btn" class="main-search-btn">🔍 幫我推薦專屬路線</button>
     </div>
 
     <div id="results-list" style="margin-top: 25px;"></div>
 
     <script>
-        // 核心改善：注入撤退點數據、高度剖面數據比例
+        // 擴充全港 15 條核心經典路線資料庫
         const hikingRoutes = [
             { 
-                name: "麥理浩徑第一、二段", 
-                region: "sai-kung", 
-                difficulty: "3", 
-                start: "北潭涌", 
-                end: "北潭凹", 
-                distance: "24km", 
-                distanceNum: 24,
-                gain: 850,          
-                terrainFactor: 1.1, 
-                baseDuration: 7.0,
-                station: "西貢",
-                views: "海景/萬宜水庫",
-                tags: ['海景', '萬宜水庫', '長途挑戰'],
-                startCoords: "22.3957,114.3233",
-                endCoords: "22.4289,114.3314",
-                // 建議1：撤退點數據
+                name: "麥理浩徑第一、二段", region: "sai-kung", difficulty: "3", start: "北潭涌", end: "北潭凹", distance: "24km", distanceNum: 24,
+                gain: 700, loss: 680, terrainFactor: 1.2, baseDuration: 7.0, station: "西貢", views: "海景/萬宜水庫", tags: ['海景', '萬宜水庫', '長途挑戰'],
+                startCoords: "22.3957,114.3233", endCoords: "22.4289,114.3314",
                 escapePoint: { name: "西灣村", method: "乘搭街渡村船至西貢市中心 / 呼叫新界綠色專線小巴", cutoffPercent: 0.5 },
-                // 建議2：剖面圖地形比例（平路, 階梯, 陡峭）
                 elevationProfile: { flat: 40, stairs: 45, steep: 15 }
             },
             { 
-                name: "西灣亭至北潭凹", 
-                region: "sai-kung", 
-                difficulty: "3", 
-                start: "西灣亭", 
-                end: "北潭凹", 
-                distance: "12km", 
-                distanceNum: 12,
-                gain: 450,          
-                terrainFactor: 1.15,
-                baseDuration: 4.0,
-                station: "西貢",
-                views: "海景/大浪西灣",
-                tags: ['海景', '大浪西灣', '新手推薦'],
-                startCoords: "22.3994,114.3582",
-                endCoords: "22.4289,114.3314",
+                name: "西灣亭至北潭凹", region: "sai-kung", difficulty: "3", start: "西灣亭", end: "北潭凹", distance: "12km", distanceNum: 12,
+                gain: 350, loss: 350, terrainFactor: 1.0, baseDuration: 4.0, station: "西貢", views: "海景/大浪西灣", tags: ['海景', '大浪西灣', '打卡熱門'],
+                startCoords: "22.3994,114.3582", endCoords: "22.4289,114.3314",
                 escapePoint: { name: "大浪西灣", method: "於西灣亭乘村巴回西貢", cutoffPercent: 0.4 },
                 elevationProfile: { flat: 35, stairs: 50, steep: 15 }
             },
             { 
-                name: "龍脊", 
-                region: "hk-island", 
-                difficulty: "1", 
-                start: "土地灣", 
-                end: "大浪灣", 
-                distance: "8.5km", 
-                distanceNum: 8.5,
-                gain: 320,          
-                terrainFactor: 1.0, 
-                baseDuration: 3.0,
-                station: "赤柱",
-                views: "海景/石澳",
-                tags: ['海景', '石澳', '新手推薦', '落日'],
-                startCoords: "22.2312,114.2384",
-                endCoords: "22.2435,114.2505",
+                name: "大浪西灣快捷線", region: "sai-kung", difficulty: "2", start: "西灣亭", end: "大浪西灣", distance: "5.0km", distanceNum: 5,
+                gain: 150, loss: 180, terrainFactor: 1.0, baseDuration: 2.0, station: "西貢", views: "沙灘/海景", tags: ['海景', '新手推薦', '短途'],
+                startCoords: "22.3994,114.3582", endCoords: "22.4001,114.3725",
+                escapePoint: { name: "吹筒坳", method: "原路折返西灣亭乘車", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 60, stairs: 30, steep: 10 }
+            },
+            { 
+                name: "創興水上活動中心沿線", region: "sai-kung", difficulty: "1", start: "萬宜路", end: "創興水上中心", distance: "4.0km", distanceNum: 4,
+                gain: 50, loss: 50, terrainFactor: 1.0, baseDuration: 1.5, station: "西貢", views: "湖光山色/天文公園", tags: ['平坦', '新手推薦', '親子'],
+                startCoords: "22.3762,114.3235", endCoords: "22.3734,114.3341",
+                escapePoint: { name: "天文公園", method: "原路返回萬宜路電召的士", cutoffPercent: 0.6 },
+                elevationProfile: { flat: 90, stairs: 10, steep: 0 }
+            },
+            { 
+                name: "龍脊", region: "hk-island", difficulty: "1", start: "土地灣", end: "大浪灣", distance: "8.5km", distanceNum: 8.5,
+                gain: 250, loss: 250, terrainFactor: 1.0, baseDuration: 3.0, station: "赤柱", views: "海景/石澳", tags: ['海景', '石澳', '新手推薦', '落日'],
+                startCoords: "22.2312,114.2384", endCoords: "22.2435,114.2505",
                 escapePoint: { name: "爛泥灣", method: "沿引水道返回石澳道乘 9 號巴士", cutoffPercent: 0.6 },
                 elevationProfile: { flat: 70, stairs: 25, steep: 5 }
             },
             { 
-                name: "大東山", 
-                region: "lantau", 
-                difficulty: "5", 
-                start: "伯公坳", 
-                end: "梅窩", 
-                distance: "9km", 
-                distanceNum: 9,
-                gain: 750,          
-                terrainFactor: 1.3, 
-                baseDuration: 4.5,
-                station: "昂坪",
-                views: "山景/芒草",
-                tags: ['山景', '芒草', '高難度'],
-                startCoords: "22.2562,113.9298",
-                endCoords: "22.2576,113.9622",
-                escapePoint: { name: "雙東坳", method: "原路折返伯公坳乘巴士，切勿強行盲目切入南山", cutoffPercent: 0.45 },
+                name: "太平山頂環迴步行徑", region: "hk-island", difficulty: "1", start: "山頂廣場", end: "盧吉道", distance: "3.5km", distanceNum: 3.5,
+                gain: 80, loss: 80, terrainFactor: 1.0, baseDuration: 1.2, station: "中環", views: "維港市景/夜景", tags: ['平坦', '夜景', '親子'],
+                startCoords: "22.2711,114.1495", endCoords: "22.2711,114.1495",
+                escapePoint: { name: "盧吉道中段", method: "直接快步返回山頂廣場乘纜車或巴士下山", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 95, stairs: 5, steep: 0 }
+            },
+            { 
+                name: "孖崗山天梯挑戰線", region: "hk-island", difficulty: "4", start: "黃泥涌峽", end: "赤柱", distance: "4.8km", distanceNum: 4.8,
+                gain: 420, loss: 450, terrainFactor: 1.3, baseDuration: 3.0, station: "赤柱", views: "大潭水塘/赤柱半島", tags: ['天梯', '千級樓梯', '進階'],
+                startCoords: "22.2568,114.1956", endCoords: "22.2185,114.2123",
+                escapePoint: { name: "淺水灣坳", method: "沿引水道下切至淺水灣道乘車離去", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 10, stairs: 80, steep: 10 }
+            },
+            { 
+                name: "大東山", region: "lantau", difficulty: "5", start: "伯公坳", end: "梅窩", distance: "9km", distanceNum: 9,
+                gain: 650, loss: 850, terrainFactor: 1.3, baseDuration: 4.5, station: "昂坪", views: "山景/芒草", tags: ['山景', '芒草', '高難度'],
+                startCoords: "22.2562,113.9298", endCoords: "22.2576,113.9622",
+                escapePoint: { name: "雙東坳", method: "原路折返伯公坳乘巴士", cutoffPercent: 0.45 },
                 elevationProfile: { flat: 15, stairs: 55, steep: 30 }
             },
             { 
-                name: "鳳凰山", 
-                region: "lantau", 
-                difficulty: "5", 
-                start: "伯公坳", 
-                end: "昂坪", 
-                distance: "7km", 
-                distanceNum: 7,
-                gain: 850,          
-                terrainFactor: 1.4, 
-                baseDuration: 4.5,
-                station: "昂坪",
-                views: "山景/日出",
-                tags: ['山景', '日出', '高難度'],
-                startCoords: "22.2562,113.9298",
-                endCoords: "22.2559,113.9048",
-                escapePoint: { name: "斬柴坳", method: "快速沿天梯急降至昂坪市集尋求救援", cutoffPercent: 0.7 },
+                name: "鳳凰山", region: "lantau", difficulty: "5", start: "伯公坳", end: "昂坪", distance: "7km", distanceNum: 7,
+                gain: 750, loss: 700, terrainFactor: 1.4, baseDuration: 4.5, station: "昂坪", views: "山景/日出", tags: ['山景', '日出', '天梯'],
+                startCoords: "22.2562,113.9298", endCoords: "22.2559,113.9048",
+                escapePoint: { name: "斬柴坳", method: "沿天梯急降至昂坪市集尋求店家協助", cutoffPercent: 0.7 },
                 elevationProfile: { flat: 10, stairs: 50, steep: 40 }
+            },
+            { 
+                name: "東澳古道沿海線", region: "lantau", difficulty: "2", start: "東涌", end: "大澳", distance: "14km", distanceNum: 14,
+                gain: 300, loss: 300, terrainFactor: 1.1, baseDuration: 5.0, station: "東涌", views: "沿海古村/港珠澳大橋", tags: ['海景', '長途挑戰', '古道'],
+                startCoords: "22.2891,113.9382", endCoords: "22.2541,113.8617",
+                escapePoint: { name: "深屈村", method: "於村內士多協助電召大澳的士離去", cutoffPercent: 0.6 },
+                elevationProfile: { flat: 70, stairs: 20, steep: 10 }
+            },
+            { 
+                name: "城門水塘畔步道", region: "new-territories", difficulty: "1", start: "城門水塘小巴站", end: "草山交界", distance: "8.0km", distanceNum: 8,
+                gain: 180, loss: 180, terrainFactor: 1.0, baseDuration: 2.5, station: "荃灣", views: "白千層/水塘鏡面", tags: ['水塘', '猴子注意', '新手推薦'],
+                startCoords: "22.3855,114.1565", endCoords: "22.3855,114.1565",
+                escapePoint: { name: "半徑紀念碑", method: "沿水塘林道平路快速折返主壩轉乘小巴", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 85, stairs: 15, steep: 0 }
+            },
+            { 
+                name: "大帽山主峰攻頂線", region: "new-territories", difficulty: "3", start: "大帽山郊野公園", end: "雷公田", distance: "10.5km", distanceNum: 10.5,
+                gain: 520, loss: 600, terrainFactor: 1.2, baseDuration: 4.0, station: "荃灣", views: "全港最高點/雲海", tags: ['山景', '最高峰', '打卡熱門'],
+                startCoords: "22.3859,114.1235", endCoords: "22.4281,114.1084",
+                escapePoint: { name: "氣象雷達站路口", method: "放棄下降雷公田，沿麥理浩徑石屎路原路退回荃錦公路", cutoffPercent: 0.6 },
+                elevationProfile: { flat: 50, stairs: 35, steep: 15 }
+            },
+            { 
+                name: "獅子山脊攀越線", region: "new-territories", difficulty: "4", start: "黃大仙沙田坳", end: "大埔道", distance: "6.5km", distanceNum: 6.5,
+                gain: 390, loss: 410, terrainFactor: 1.3, baseDuration: 3.5, station: "黃大仙", views: "九龍全景/獅子頭", tags: ['山景', '九龍地標', '陡峭'],
+                startCoords: "22.3551,114.1952", endCoords: "22.3572,114.1584",
+                escapePoint: { name: "回歸亭", method: "不登頂獅子頭，直接由回歸亭古道下切至翠竹花園", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 20, stairs: 55, steep: 25 }
+            },
+            { 
+                name: "釣魚翁清水灣尖峰", region: "sai-kung", difficulty: "3", start: "五塊田", end: "大坳門", distance: "6.0km", distanceNum: 6,
+                gain: 310, loss: 320, terrainFactor: 1.2, baseDuration: 2.8, station: "將軍澳", views: "三尖之一/相思灣景", tags: ['山景', '陡峭', '短途'],
+                startCoords: "22.3164,114.2861", endCoords: "22.2854,114.2882",
+                escapePoint: { name: "蝦山篤坳", method: "繞過尖峰，沿山腰平緩徑直出清水灣道乘小巴", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 30, stairs: 50, steep: 20 }
+            },
+            { 
+                name: "菠蘿山大峽谷神秘線", region: "new-territories", difficulty: "2", start: "良景邨", end: "下白泥", distance: "6.0km", distanceNum: 6,
+                gain: 210, loss: 230, terrainFactor: 1.1, baseDuration: 2.5, station: "屯門", views: "港版大峽谷/白泥落日", tags: ['大峽谷', '新手推薦', '落日'],
+                startCoords: "22.4065,113.9634", endCoords: "22.4354,113.9512",
+                escapePoint: { name: "峽谷觀景台", method: "原路急降折返良景輕鐵站", cutoffPercent: 0.5 },
+                elevationProfile: { flat: 60, stairs: 20, steep: 20 }
             }
         ];
+
+        const GLOBAL_SUNSET_HOUR = 19;
+        const GLOBAL_SUNSET_MIN = 10;
 
         let userLocation = null; 
         let selectedTags = [];
@@ -673,6 +749,20 @@
         const resultsList = document.getElementById('results-list');
         const favoriteCountSpan = document.getElementById('favorite-count');
         const themeToggleBtn = document.getElementById('theme-toggle');
+
+        const MOCK_WEATHER_CURRENT = {
+            temperature: { data: [{ place: "天文台", value: 25 }, { place: "西貢", value: 24 }, { place: "赤柱", value: 24 }, { place: "昂坪", value: 21 }, { place: "荃灣", value: 24 }, { place: "黃大仙", value: 25 }, { place: "屯門", value: 25 }] },
+            humidity: { data: [{ value: 75 }] },
+            uvIndex: { data: [{ value: 3 }] },
+            warningMessage: ""
+        };
+
+        const MOCK_WEATHER_FORECAST = {
+            weatherForecast: [
+                { week: "明天", forecastMinTemp: { value: 23 }, forecastMaxTemp: { value: 28 }, PSR: "低", forecastMaxUV: { value: 5 }, forecastWeather: "短暫陽光" },
+                { week: "後天", forecastMinTemp: { value: 24 }, forecastMaxTemp: { value: 29 }, PSR: "低", forecastMaxUV: { value: 6 }, forecastWeather: "天晴" }
+            ]
+        };
 
         function initTagsUI() {
             const allTags = new Set();
@@ -703,52 +793,68 @@
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))); 
         }
 
-        function computeRouteETA(route, userLevel, currentTemp, currentHumidity) {
+        // 規範 4：動態雙向耗時與 Aitken 膝關節落坡阻力算式
+        function computeRouteETA(route, userLevel, currentTemp, currentHumidity, warningRaw, isReverse = false) {
             const distance = route.distanceNum; 
-            const gain = route.gain || 0;       
-            const terrain = route.terrainFactor || 1.0; 
+            
+            // 雙向高度切換
+            const gain = isReverse ? route.loss : route.gain;
+            const loss = isReverse ? route.gain : route.loss;
+            
+            let terrain = route.terrainFactor || 1.0; 
+
+            // 高溫與暴曬修正加權
+            const hasHeatWarning = (warningRaw || "").includes("酷熱天氣") || (warningRaw || "").includes("工作暑熱");
+            if (hasHeatWarning) {
+                terrain *= 1.15;
+            }
             
             const weightInput = document.getElementById('user-weight-input');
             const userWeight = weightInput ? parseFloat(weightInput.value) || 70 : 70;
 
+            // 基礎爬升耗時
             let baseMinutes = distance * 13.3;
             const ascentPenaltyPer100m = userWeight > 80 ? 12.5 : 10;
             let climbingMinutes = (gain / 100) * ascentPenaltyPer100m;
             let totalEstimatedMinutes = (baseMinutes + climbingMinutes) * terrain;
 
+            // 下坡膝關節阻力懲罰演算法 (Aitken 改良)
+            // 每下降 300 米加 10 分鐘；若坡度陡峭（terrainFactor >= 1.3），每下降 300 米加 20 分鐘
+            const lossPenaltyMinutes = (route.terrainFactor >= 1.3) ? 20 : 10;
+            let kneePenaltyMinutes = (loss / 300) * lossPenaltyMinutes;
+            totalEstimatedMinutes += kneePenaltyMinutes;
+
+            // 行山能力層級係數
             let levelFactor = 1.0;
             if (userLevel === 'beginner') levelFactor = 1.35;
             else if (userLevel === 'expert') levelFactor = 0.75;
             totalEstimatedMinutes *= levelFactor;
 
+            // 額外微觀天氣阻力加權
             if (currentTemp >= 32) totalEstimatedMinutes += (distance * 4);
             else if (currentTemp >= 29) totalEstimatedMinutes += (distance * 2);
-            
             if (currentHumidity >= 85 && currentTemp >= 27) totalEstimatedMinutes *= 1.05;
 
-            let finalHours = totalEstimatedMinutes / 60;
-            return parseFloat(Math.max(finalHours, 0.5).toFixed(1));
+            return parseFloat(Math.max(totalEstimatedMinutes / 60, 0.5).toFixed(1));
         }
 
+        // 規範 4：生理補水量精準修正
         function calculateWaterNeed(duration, temp, difficulty) {
-            const weightInput = document.getElementById('user-weight-input');
-            const userWeight = weightInput ? parseFloat(weightInput.value) || 70 : 70; 
-            let water = userWeight * 0.006 * parseFloat(duration);
+            let water = 0.5 * parseFloat(duration); // 基礎補水量 = 每小時消耗 500ml * 預估時數
             if (parseFloat(temp) >= 30) water += 0.6;
             if (parseInt(difficulty) >= 4) water += 0.4; 
             return parseFloat(Math.max(water, 0.5).toFixed(1));
         }
 
-        function generateGearList(difficulty, temp, humidity, uv, duration, views) {
-            let gear = ["基本急救包", "手機及隨身充"];
-            if (uv >= 6) gear.push("防曬霜", "太陽眼鏡", "遮陽帽");
-            if (humidity >= 85) gear.push("替換排汗衣", "毛巾");
-            if (parseInt(difficulty) >= 4) gear.push("登山杖", "離線地圖");
-            if (duration >= 5) gear.push("行動糧/能量棒");
+        function generateGearList(difficulty, temp, humidity, uv, duration) {
+            let gear = ["基本急救包", "離線地圖 APP", "隨身火牛"];
+            if (uv >= 6) gear.push("防曬裝備", "遮陽帽");
+            if (humidity >= 85) gear.push("替換排汗衣物");
+            if (parseInt(difficulty) >= 3) gear.push("專業行山鞋", "登山杖");
+            if (duration >= 4) gear.push("高熱量行動糧");
             return gear;
         }
 
-        // 建議4：純前端動態產生並下載 GPX 導航數據軌跡
         function exportRouteGPX(route) {
             const startPts = route.startCoords.split(',');
             const endPts = route.endCoords.split(',');
@@ -757,13 +863,13 @@
 <gpx version="1.1" creator="HikingRice" xmlns="http://www.topografix.com/GPX/1/1">
   <metadata>
     <name>${route.name}</name>
-    <desc>起點: ${route.start} 至 終點: ${route.end} | 總爬升: ${route.gain}米</desc>
+    <desc>起點: ${route.start} - 終點: ${route.end} | 總爬升: ${route.gain}m / 下降: ${route.loss}m</desc>
   </metadata>
   <trk>
-    <name>${route.name} 軌跡航線</name>
+    <name>${route.name} 離線軌跡</name>
     <trkseg>
-      <trkpt lat="${startPts[0].trim()}" lon="${startPts[1].trim()}"><ele>0</ele><name>起點: ${route.start}</name></trkpt>
-      <trkpt lat="${endPts[0].trim()}" lon="${endPts[1].trim()}"><ele>${route.gain}</ele><name>終點: ${route.end}</name></trkpt>
+      <trkpt lat="${startPts[0].trim()}" lon="${startPts[1].trim()}"></trkpt>
+      <trkpt lat="${endPts[0].trim()}" lon="${endPts[1].trim()}"></trkpt>
     </trkseg>
   </trk>
 </gpx>`;
@@ -772,27 +878,65 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `${route.name}_hiking_track.gpx`);
+            link.setAttribute("download", `${route.name}_離線地圖點.gpx`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
+        // 規範 4：天時牌即時渲染
+        function updateGlobalDashboardAstro(warningMessage, generalTemp, generalHumid) {
+            const now = new Date();
+            const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+            const sunsetTotalMinutes = GLOBAL_SUNSET_HOUR * 60 + GLOBAL_SUNSET_MIN;
+            const diffMinutes = sunsetTotalMinutes - currentTotalMinutes;
+
+            document.getElementById('dash-sunset-time').innerText = `${GLOBAL_SUNSET_HOUR}:${GLOBAL_SUNSET_MIN}`;
+            document.getElementById('dash-magic-hour').innerText = `${GLOBAL_SUNSET_HOUR - 1}:${GLOBAL_SUNSET_MIN} - ${GLOBAL_SUNSET_HOUR}:${GLOBAL_SUNSET_MIN}`;
+            
+            if (generalTemp && generalHumid) {
+                document.getElementById('dash-general-weather').innerText = `大盤均溫 ${generalTemp}°C | 濕度 ${generalHumid}%`;
+            } else {
+                document.getElementById('dash-general-weather').innerText = `環境氣象算力穩定`;
+            }
+
+            const countdownElem = document.getElementById('dash-countdown');
+            if (diffMinutes > 0) {
+                const h = Math.floor(diffMinutes / 60);
+                const m = diffMinutes % 60;
+                countdownElem.innerText = `餘 ${h} 小時 ${m} 分鐘`;
+                countdownElem.style.color = 'inherit';
+            } else {
+                countdownElem.innerText = `日落天黑 (注意保命照明)`;
+                countdownElem.style.color = '#d9381e';
+            }
+
+            const warnText = document.getElementById('dash-warning-text');
+            if (warningMessage && warningMessage.trim() !== "" && !warningMessage.includes("目前無惡劣天氣警告")) {
+                warnText.innerText = warningMessage;
+                warnText.style.color = '#d9381e';
+            } else {
+                warnText.innerText = "🟢 目前無惡劣天氣警告";
+                warnText.style.color = '#2e7d32';
+            }
+        }
+
         gpsBtn.addEventListener('click', () => {
             if (!navigator.geolocation) return;
-            gpsBtn.innerText = "⏳ 定位中...";
+            gpsBtn.innerText = "⏳ 正在獲取GPS算力...";
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     gpsBtn.innerText = "✅ 定位成功";
                     searchBtn.click();
                 },
-                () => { gpsBtn.innerText = "❌ 定位失敗"; },
+                () => { gpsBtn.innerText = "❌ 定位失敗 (已套用預設算力)"; },
                 { timeout: 5000 }
             );
         });
 
-        searchBtn.addEventListener('click', function() {
+        // 核心搜尋引擎
+        searchBtn.addEventListener('click', async function() {
             const keyword = keywordInput.value.trim().toLowerCase();
             const selectedRegion = document.getElementById('region-select').value;
             const selectedDiff = document.getElementById('diff-select').value;
@@ -802,17 +946,18 @@
             
             resultsList.innerHTML = '';
 
-            const cachedCurrent = JSON.parse(localStorage.getItem('cache_current_weather'));
-            const testTemp = cachedCurrent?.temperature?.data?.[0]?.value ?? 25;
-            const testHumid = cachedCurrent?.humidity?.data?.[0]?.value ?? 75;
+            const currentRouteOne = hikingRoutes[0];
+            const weatherData = await fetchHKWeatherAndForecast(currentRouteOne.station);
+            updateGlobalDashboardAstro(weatherData.warningRaw, weatherData.temp, weatherData.humidity);
 
+            // 規範 1：嚴格修復資料型態比對
             let results = hikingRoutes.filter(route => {
                 if (selectedRegion !== 'all' && route.region !== selectedRegion) return false;
-                if (selectedDiff !== 'all' && route.difficulty !== selectedDiff) return false;
+                if (selectedDiff !== 'all' && route.difficulty.toString() !== selectedDiff.toString()) return false;
                 if (keyword !== '' && !route.name.toLowerCase().includes(keyword) && !route.views.toLowerCase().includes(keyword) && !route.start.toLowerCase().includes(keyword)) return false;
                 if (selectedTags.length > 0 && !selectedTags.every(tag => route.tags.includes(tag))) return false;
 
-                const personalTrueDuration = computeRouteETA(route, userLevel, testTemp, testHumid);
+                const personalTrueDuration = computeRouteETA(route, userLevel, weatherData.temp, weatherData.humidity, weatherData.warningRaw, false);
                 if (durationLimit !== 'all' && personalTrueDuration > parseFloat(durationLimit)) return false;
 
                 return true;
@@ -823,11 +968,12 @@
 
             if (results.length > 0) {
                 results.forEach(route => {
-                    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${route.startCoords}&destination=${route.endCoords}&travelmode=walking`;
-                    const transitUrl = `https://www.google.com/maps/dir/?api=1&destination=${route.startCoords}&travelmode=transit`;
+                    // 規範 3：OSM 與精準 Google Maps 公共交通跳轉網址
+                    const osmMapUrl = `https://www.openstreetmap.org/?mlat=${route.startCoords.split(',')[0]}&mlon=${route.startCoords.split(',')[1]}#map=15/${route.startCoords.split(',')[0]}/${route.startCoords.split(',')[1]}`;
+                    const transitUrl = `https://www.google.com/maps/dir/?api=1&origin=$\${userLocation ? userLocation.lat+','+userLocation.lng : ''}&destination=${route.startCoords}&travelmode=transit`;
                     const isFavorited = savedFavorites.includes(route.name);
 
-                    let distanceString = "未知 (請點擊定位)";
+                    let distanceString = "未知 (請點擊自動定位)";
                     let distanceClass = "";
                     let kmNum = 0;
 
@@ -839,8 +985,6 @@
                     }
 
                     const tagBadges = route.tags.map(t => `<span style="background:#e8f5e9; color:#2e7d32;">#${t}</span>`).join('');
-                    
-                    // 建議2的 Profile 渲染
                     const prof = route.elevationProfile || { flat: 50, stairs: 30, steep: 20 };
 
                     const card = document.createElement('div');
@@ -849,36 +993,37 @@
                         <p class="route-title">📍 ${route.name}</p>
                         <button class="love-btn">${isFavorited ? '❤️' : '🤍'}</button>
                         <div class="route-details">
-                            <span>🏃 全程 ${route.distance} (總爬升: ${route.gain}米)</span>
+                            <span>區域: ${route.region === 'sai-kung' ? '西貢' : route.region === 'hk-island' ? '港島' : route.region === 'lantau' ? '大嶼山' : '新界'}</span>
+                            <span>難度: ★${route.difficulty}</span>
+                            <span>全程 ${route.distance} (爬升: ${route.gain}m / 下降: ${route.loss}m)</span>
                             <span class="eta-badge">⏱️ 基底耗時: ${route.baseDuration}小時</span>
-                            <span>📡 氣象觀測站: ${route.station}</span>
                             <span>🏁 ${route.start} → ${route.end}</span>
                             ${tagBadges}
-                            <span class="${distanceClass}" data-km="${kmNum}">📍 距離你: ${distanceString}</span>
+                            <span class="${distanceClass}">📍 距離你現時位置: ${distanceString}</span>
                         </div>
 
                         <div class="elevation-wrapper">
                             <div class="elevation-title">
-                                <span>📊 地形路況分佈剖面估算</span>
-                                <span style="color:var(--secondary-text); font-weight:normal;">梯級加權阻力: x${route.terrainFactor}</span>
+                                <span>📊 地形路況結構</span>
+                                <span style="color:var(--secondary-text); font-weight:normal;">原始阻力系數: x${route.terrainFactor}</span>
                             </div>
                             <div class="elevation-bar">
-                                <div class="elev-part elev-flat" style="width: ${prof.flat}%" title="平緩泥路/水泥路"></div>
-                                <div class="elev-part elev-stairs" style="width: ${prof.stairs}%" title="上落梯級路段"></div>
-                                <div class="elev-part elev-steep" style="width: ${prof.steep}%" title="陡峭碎石/直攻山脊"></div>
+                                <div class="elev-part elev-flat" style="width: ${prof.flat}%" title="平緩路段"></div>
+                                <div class="elev-part elev-stairs" style="width: ${prof.stairs}%" title="階梯陡路"></div>
+                                <div class="elev-part elev-steep" style="width: ${prof.steep}%" title="陡峭碎石"></div>
                             </div>
                             <div class="elevation-legend">
-                                <span><i class="legend-dot elev-flat"></i>平緩泥路 (${prof.flat}%)</span>
-                                <span><i class="legend-dot elev-stairs"></i>階梯陡路 (${prof.stairs}%)</span>
-                                <span><i class="legend-dot elev-steep"></i>陡峭碎石 (${prof.steep}%)</span>
+                                <span><i class="legend-dot elev-flat"></i>平緩 (${prof.flat}%)</span>
+                                <span><i class="legend-dot elev-stairs"></i>階梯 (${prof.stairs}%)</span>
+                                <span><i class="legend-dot elev-steep"></i>碎石陡坡 (${prof.steep}%)</span>
                             </div>
                         </div>
 
                         <div class="card-actions">
-                            <button class="ask-ai-btn">🤖 AI 建議&Magic Hour預測</button>
-                            <button class="gpx-btn">💾 匯出 GPX 軌跡點</button>
-                            <a href="${transitUrl}" target="_blank" class="nav-btn">🚌 交通導航</a>
-                            <a href="${googleMapsUrl}" target="_blank" class="map-btn">🗺️ 地圖導航</a>
+                            <button class="ask-ai-btn">⚡ AI 狀況模擬：評估天黑與補水</button>
+                            <button class="gpx-btn">🗺️ 下載離線地圖點 (GPX)</button>
+                            <a href="${transitUrl}" target="_blank" class="nav-btn">🚌 點樣去？(出發交通)</a>
+                            <a href="${osmMapUrl}" target="_blank" class="map-btn">🗺️ 查看山徑地圖 (OSM)</a>
                         </div>
                         <div class="card-ai-box" style="display:none;"></div>
                     `;
@@ -898,8 +1043,8 @@
             } else {
                 resultsList.innerHTML = `
                     <div style="text-align:center; padding: 30px; background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--input-border); margin-top:20px;">
-                        <p style="color:#999; font-size: 15px; margin-bottom: 15px;">🔍 沒有找到完全符合當前多重條件的路線。</p>
-                        <button id="reset-filters-btn" style="background-color: #0288d1; color: white; border: none; padding: 10px 20px; font-size: 14px; border-radius: 20px; font-weight: bold; cursor: pointer;">🔄 一鍵重置所有篩選條件</button>
+                        <p style="color:#999; font-size: 15px; margin-bottom: 15px;">🔍 沒有找到完全符合條件的路線。</p>
+                        <button id="reset-filters-btn" style="background-color: #0288d1; color: white; border: none; padding: 10px 20px; font-size: 14px; border-radius: 20px; font-weight: bold; cursor: pointer;">🔄 清除重選（重新搵過）</button>
                     </div>`;
                 document.getElementById('reset-filters-btn').addEventListener('click', () => {
                     document.getElementById('keyword-input').value = '';
@@ -913,6 +1058,7 @@
             }
         });
 
+        // 規範 1：徹底修復天文台 API 變動防護機制
         async function fetchHKWeatherAndForecast(targetStation) {
             let isOffline = false;
             let currentData = null;
@@ -924,7 +1070,8 @@
                 localStorage.setItem('cache_current_weather', JSON.stringify(currentData));
             } catch (e) {
                 isOffline = true;
-                currentData = JSON.parse(localStorage.getItem('cache_current_weather'));
+                const cached = localStorage.getItem('cache_current_weather');
+                currentData = cached ? JSON.parse(cached) : MOCK_WEATHER_CURRENT;
             }
 
             try {
@@ -933,21 +1080,33 @@
                 localStorage.setItem('cache_forecast_weather', JSON.stringify(forecastData));
             } catch (e) {
                 isOffline = true;
-                forecastData = JSON.parse(localStorage.getItem('cache_forecast_weather'));
+                const cached = localStorage.getItem('cache_forecast_weather');
+                forecastData = cached ? JSON.parse(cached) : MOCK_WEATHER_FORECAST;
             }
 
-            if (!currentData) currentData = { temperature: { data: [{ place: "天文台", value: 25 }] }, humidity: { data: [{ value: 75 }] } };
-            if (!forecastData || !forecastData.weatherForecast) forecastData = { weatherForecast: [] };
+            if (!currentData) currentData = MOCK_WEATHER_CURRENT;
+            if (!forecastData || !forecastData.weatherForecast) forecastData = MOCK_WEATHER_FORECAST;
 
             let matchedTemp = 25;
-            if (currentData.temperature?.data) {
+            if (currentData.temperature && currentData.temperature.data) {
                 const found = currentData.temperature.data.find(item => item.place.includes(targetStation));
                 matchedTemp = found ? found.value : (currentData.temperature.data.find(item => item.place === "天文台")?.value ?? 25);
             }
 
             let hkHumidity = currentData.humidity?.data?.[0]?.value ?? 75;
             let hkUvIndex = currentData.uvIndex?.data?.[0]?.value ?? 0;
-            let warningTexts = currentData.warningMessage ? currentData.warningMessage.map(msg => msg) : [];
+
+            // 嚴格判定型態，防止空字串 .forEach 卡死搜尋
+            let warningTexts = [];
+            if (currentData.warningMessage) {
+                if (Array.isArray(currentData.warningMessage)) {
+                    currentData.warningMessage.forEach(msg => { if (msg) warningTexts.push(msg); });
+                } else if (typeof currentData.warningMessage === 'string' && currentData.warningMessage.trim() !== "") {
+                    warningTexts.push(currentData.warningMessage);
+                }
+            }
+            
+            let warningRawString = warningTexts.length > 0 ? warningTexts.join('、') : "🟢 目前無惡劣天氣警告";
 
             let textForecastList = [];
             let futureRainOrThunderAlert = false;
@@ -956,78 +1115,96 @@
             if (threeDayForecast.length > 0) {
                 threeDayForecast.forEach(day => {
                     textForecastList.push({
-                        week: day.week ?? "明天", tempRange: `${day.forecastMinTemp?.value ?? 22}-${day.forecastMaxTemp?.value ?? 28}°C`, psr: day.PSR ?? "低", uv: day.forecastMaxUV?.value ?? 0
+                        week: day.week ?? "明天", 
+                        tempRange: `${day.forecastMinTemp?.value ?? 22}-${day.forecastMaxTemp?.value ?? 28}°C`, 
+                        psr: day.PSR ?? "低", 
+                        uv: day.forecastMaxUV?.value ?? 0
                     });
                     if ((day.forecastWeather ?? "").includes('雨') || (day.forecastWeather ?? "").includes('雷')) futureRainOrThunderAlert = true;
                 });
             } else {
-                textForecastList = [{ week: "明天", tempRange: "22-28°C", psr: "低", uv: 2 }, { week: "後天", tempRange: "23-29°C", psr: "低", uv: 3 }];
+                textForecastList = [
+                    { week: "明天", tempRange: "24-29°C", psr: "低", uv: 5 },
+                    { week: "後天", tempRange: "25-30°C", psr: "中", uv: 6 }
+                ];
             }
 
-            return { temp: matchedTemp, humidity: hkHumidity, uv: hkUvIndex, warningRaw: warningTexts.join('、'), isOffline: isOffline, textForecastList: textForecastList, futureRainOrThunderAlert: futureRainOrThunderAlert };
+            return { 
+                temp: matchedTemp, 
+                humidity: hkHumidity, 
+                uv: hkUvIndex, 
+                warningRaw: warningRawString, 
+                isOffline: isOffline, 
+                textForecastList: textForecastList, 
+                futureRainOrThunderAlert: futureRainOrThunderAlert 
+            };
         }
 
-        async function triggerCardAI(route, currentCardElement) {
-            document.querySelectorAll('.card-ai-box').forEach(box => {
-                if (box !== currentCardElement.querySelector('.card-ai-box')) {
-                    box.style.display = 'none'; box.innerHTML = '';
-                }
-            });
-
+        // 規範 4：動態狀況模擬（傷膝落坡、週末等車加權、補水低鈉警示）
+        async function triggerCardAI(route, currentCardElement, isReverseMode = false) {
             const aiBox = currentCardElement.querySelector('.card-ai-box');
-            aiBox.style.display = 'block';
-            aiBox.innerHTML = `<div style="color: var(--secondary-text); font-style: italic;">AI 正在加權動態計算撤退點阻力、黃金小時光線軌跡... 🕒</div>`;
+            
+            if (!isReverseMode) {
+                document.querySelectorAll('.card-ai-box').forEach(box => {
+                    if (box !== aiBox) { box.style.display = 'none'; box.innerHTML = ''; }
+                });
+                aiBox.style.display = 'block';
+            }
+            
+            aiBox.innerHTML = `<div style="color: var(--secondary-text); font-style: italic;">AI 精算教練正在分析路段高度阻力... 🕒</div>`;
             aiBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             const weather = await fetchHKWeatherAndForecast(route.station);
 
-            let transitRoundTripHours = 2.4; 
+            let transitRoundTripHours = 2.0; 
             if (userLocation) {
                 const startParts = route.startCoords.split(',');
                 const distanceKM = calculateHaversineDistance(userLocation.lat, userLocation.lng, parseFloat(startParts[0]), parseFloat(startParts[1]));
                 transitRoundTripHours = parseFloat((((distanceKM * 3) + 20) * 2 / 60).toFixed(1));
             }
 
-            const userLevel = document.getElementById('user-level-select').value;
-            const dynamicETA = computeRouteETA(route, userLevel, weather.temp, weather.humidity);
-            const totalJourneyTime = parseFloat((transitRoundTripHours + dynamicETA).toFixed(1));
-            const scientificWater = calculateWaterNeed(dynamicETA, weather.temp, route.difficulty);
-            const tailoredGearList = generateGearList(route.difficulty, weather.temp, weather.humidity, weather.uv, dynamicETA, route.views);
-
+            // 週末 15:00-18:00 等車交通冗餘加權 50 分鐘
             const now = new Date();
-            // 建議3：計算黃金攝影魔幻時刻 (日落前1小時)
-            const sunsetHour = 19; const sunsetMin = 10;
-            const goldenHourStartStr = `${sunsetHour - 1}:${sunsetMin}`;
-            const goldenHourEndStr = `${sunsetHour}:${sunsetMin}`;
+            const currentDay = now.getDay(); 
+            const currentHour = now.getHours();
+            let weekendQueuePenaltyHours = 0;
+            if ((currentDay === 0 || currentDay === 6) && (currentHour >= 15 && currentHour < 18)) {
+                weekendQueuePenaltyHours = 50 / 60; 
+            }
 
-            const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-            const sunsetTotalMinutes = sunsetHour * 60 + sunsetMin; 
-            const diffMinutes = sunsetTotalMinutes - currentTotalMinutes;
+            const userLevel = document.getElementById('user-level-select').value;
+            const dynamicETA = computeRouteETA(route, userLevel, weather.temp, weather.humidity, weather.warningRaw, isReverseMode);
+            const totalJourneyTime = parseFloat((transitRoundTripHours + dynamicETA + weekendQueuePenaltyHours).toFixed(1));
+            
+            const scientificWater = calculateWaterNeed(dynamicETA, weather.temp, route.difficulty);
+            const tailoredGearList = generateGearList(route.difficulty, weather.temp, weather.humidity, weather.uv, dynamicETA);
 
-            let sunsetText = diffMinutes > 0 
-                ? `🌇 今日預估日落：19:10 (距離天黑尚餘 ${Math.floor(diffMinutes / 60)} 小時 ${diffMinutes % 60} 分鐘)`
-                : `🌇 今日日落：19:10 (注意：目前天色已晚，切勿盲目入山！ )`;
-
-            // 建議1：智能計算撤退截止極限時間 (Cutoff Time)
-            // 撤退截止時間 = 日落總分鐘 - (總行山時間 * (1 - 撤退點比例) * 60)
+            // 應變極限時間精算
+            const sunsetTotalMinutes = GLOBAL_SUNSET_HOUR * 60 + GLOBAL_SUNSET_MIN; 
             const escapeConfig = route.escapePoint || { name: "中途點", method: "原路返回", cutoffPercent: 0.5 };
             const minutesToFinishFromEscape = dynamicETA * (1 - escapeConfig.cutoffPercent) * 60;
-            const cutoffTotalMinutes = sunsetTotalMinutes - minutesToFinishFromEscape - 30; // 預留30分鐘安全冗餘
+            const cutoffTotalMinutes = sunsetTotalMinutes - minutesToFinishFromEscape - 30; 
             const cutoffHour = Math.floor(cutoffTotalMinutes / 60);
             const cutoffMin = Math.floor(cutoffTotalMinutes % 60);
             const cutoffTimeStr = `${cutoffHour.toString().padStart(2, '0')}:${cutoffMin.toString().padStart(2, '0')}`;
 
+            // 核心安全防禦：天黑比對
             const currentHourDecimal = now.getHours() + (now.getMinutes() / 60);
             const estimatedFinishedHour = currentHourDecimal + dynamicETA;
-            const sunsetHourDecimal = sunsetHour + (sunsetMin / 60);
+            const sunsetHourDecimal = GLOBAL_SUNSET_HOUR + (GLOBAL_SUNSET_MIN / 60);
 
             let nightWarningHTML = "";
             if (estimatedFinishedHour >= sunsetHourDecimal) {
                 nightWarningHTML = `
-                    <div class="warning-alert-orange">
+                    <div class="warning-alert-orange" style="border-left: 5px solid #d9381e;">
                         ⚠️【天黑落山嚴格警告】<br>
-                        當前開步時間為 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}，依據您的體能爬升算出的總耗時為 ${dynamicETA} 小時，落山時將遭遇黑夜！強烈建議今日縮短路程或攜帶頭燈！
+                        當前開步時間較晚，依據目前${isReverseMode ? '逆行' : '順行'}地形估算之行山耗時為 ${dynamicETA} 小時，這將導致您的預計落山時間【遲過】今日客觀日落時間（${GLOBAL_SUNSET_HOUR}:${GLOBAL_SUNSET_MIN}）。強烈建議縮短行程，或必須在背包內備妥專業照明頭燈！
                     </div>`;
+            }
+
+            let waterNoticeHTML = "";
+            if (scientificWater > 2.5) {
+                waterNoticeHTML = `<div class="water-danger-notice">⚠️ 建議其中 500ml 必須為電解質運動飲料，以防低鈉血症（水中毒）。</div>`;
             }
 
             let forecastHTML = '';
@@ -1037,66 +1214,64 @@
                         <div class="forecast-card-title">${item.week}</div>
                         <div>${item.tempRange}</div>
                         <div>🌧️: ${item.psr}</div>
-                        <div>☀️ UV: ${item.uv}</div>
                     </div>`;
             });
 
-            // 智能報告文字生成
-            let aiReport = `【AI 行山教練安全防禦決策報告】\n\n`;
-            aiReport += `📡 分區實時氣象（${route.station}站）：溫度 ${weather.temp}°C | 濕度 ${weather.humidity}% | 紫外線 ${weather.uv}\n`;
-            aiReport += weather.warningRaw ? `⚠️ 警告生效中：${weather.warningRaw}\n\n` : `🟢 當前分區天氣環境平穩\n\n`;
-            
-            aiReport += `🧗 地形阻力提示：本線階梯與陡坡佔比達 ${100 - (route.elevationProfile?.flat ?? 50)}%。體能分配不均極易引起膝部舊患，登山杖為必備配備。\n\n`;
-            aiReport += `沿途亮點特色：${route.views}。`;
+            let aiReport = `【AI 狀況模擬報告】\n`;
+            aiReport += `📡 當前分區天氣：溫度 ${weather.temp}°C | 濕度 ${weather.humidity}%\n`;
+            if (weather.warningRaw.includes("酷熱天氣") || weather.warningRaw.includes("工作暑熱")) {
+                aiReport += `🔥 酷熱/暑熱警告生效中：阻力增幅 1.15 倍，已精算暴曬體能耗損。\n`;
+            }
+            aiReport += `🧗 關節負荷：${isReverseMode ? '逆行' : '順行'}下坡高度為 ${isReverseMode ? route.gain : route.loss}米。系統已加入 Aitken 改良版下坡阻力時間懲罰。`;
 
-            // 結構化寫入 DOM 渲染面板
             aiBox.innerHTML = `
-                <div id="offline-banner" class="offline-alert" style="display: ${weather.isOffline ? 'block' : 'none'};">📴 網絡訊號中斷，已啟動本機全離線保命模式</div>
+                <div class="offline-alert" style="display: ${weather.isOffline ? 'block' : 'none'};">📴 已啟用本機全離線保命機制</div>
                 
-                <h4 style="margin-top: 0; color: #2e7d32; margin-bottom: 12px;">🤖 AI 核心環境與安全精算：</h4>
+                <h4 style="margin-top: 0; color: #2e7d32; margin-bottom: 12px;">🤖 AI 個人化體能與安全精算面板：</h4>
                 
-                <div style="margin-bottom: 12px; font-size: 14px; line-height: 1.6;">
-                    <div style="font-weight: bold; color: #2e7d32;">⏱️ AI 預估個人純行山淨耗時：${dynamicETA} 小時</div>
-                    <div style="font-weight: bold; color: #1a73e8;">🚌 今日全趟行程總預估時數：約 ${totalJourneyTime} 小時</div>
+                <div class="direction-switch-container">
+                    <button class="direction-btn ${!isReverseMode ? 'active' : ''}" id="dir-forward-btn">順行 (${route.start} → ${route.end})</button>
+                    <button class="direction-btn ${isReverseMode ? 'active' : ''}" id="dir-reverse-btn">逆行 (${route.end} → ${route.start})</button>
                 </div>
 
-                <div class="weather-banner">
-                    <div>${sunsetText}</div>
+                <div style="margin-bottom: 12px; font-size: 14px; line-height: 1.6;">
+                    <div style="font-weight: bold; color: #2e7d32;">⏱️ AI 個人純行山淨耗時：${dynamicETA} 小時</div>
+                    <div style="font-weight: bold; color: #1a73e8;">🚌 當日行程總預估時數（含交通）：約 ${totalJourneyTime} 小時 ${weekendQueuePenaltyHours > 0 ? '<span style="color:#d9381e;">(內含週末15-18點等車排隊冗餘)</span>' : ''}</div>
                 </div>
 
                 <div class="ai-safety-box">
-                    <strong style="color: #c62828;">🚨 建議 1：動態安全撤退機制 (Emergency Escape)</strong><br>
-                    • 本線最佳防禦撤退點：<strong>${escapeConfig.name}</strong><br>
-                    • 撤退點轉向極限截止時間：<span style="color: #c62828; font-weight: bold; font-size: 14px;">${cutoffTimeStr} 之前</span><br>
-                    • 撤退應變方案：若逾時未過此點，請勿強行攻頂。請立即依循路牌指示：${escapeConfig.method}。
+                    <strong style="color: #c62828;">🚨 安全防禦撤退機制</strong><br>
+                    • 最佳防禦撤退點：<strong>${escapeConfig.name}</strong><br>
+                    • 撤退點轉向【極限截止時間】：<span style="color: #c62828; font-weight: bold;">${cutoffTimeStr} 之前</span><br>
+                    • 撤退應變：${escapeConfig.method}。
                 </div>
 
                 <div class="photo-box">
-                    <strong style="color: #f57c00;">📸 建議 2：攝影愛好者魔幻時刻 (Magic Hour Tracker)</strong><br>
-                    • 今日最佳打卡光線區間：<strong>${goldenHourStartStr} - ${goldenHourEndStr}</strong><br>
-                    • 攝影小貼士：此時陽光呈溫暖金黃色，最適合拍攝 <span style="background:#ffecb3; padding:2px 4px; border-radius:3px;">${route.views}</span>。拍照時切記注意落腳點，切勿為了構圖退後跌落山脊。
+                    <strong style="color: #f57c00;">📸 攝影與構圖提示</strong><br>
+                    • 亮點景觀：${route.views}。魔幻時刻光影絕佳，但切記注意腳底，安全第一。
                 </div>
 
-                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">📅 未來三天趨勢摘要</div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">📅 未來趨勢摘要</div>
                 <div class="forecast-container">${forecastHTML}</div>
 
-                <p style="white-space: pre-line; line-height: 1.6; font-size: 14px; margin-top: 10px; margin-bottom: 10px;">${aiReport}</p>
+                <p style="white-space: pre-line; line-height: 1.6; font-size: 13px; margin-top: 10px;">${aiReport}</p>
 
                 <div class="ai-suggestion-content">
-                    <p style="font-weight: bold; color: #2e7d32; font-size: 15px; margin-bottom: 8px;">📊 科學補給與動態裝備：</p>
-                    <p>💧 <strong>依據您體重與地形算出的精確攜水量：</strong> <span style="color: #e65100; font-weight: bold; font-size: 16px;">${scientificWater}</span> 公升</p>
-                    <p style="margin-top: 12px; font-weight: 600;">🎒 智能配置裝備清單：</p>
+                    <p>💧 <strong>動態攜水量推薦：</strong> <span style="color: #e65100; font-weight: bold; font-size: 16px;">${scientificWater}</span> 公升</p>
+                    ${waterNoticeHTML}
+                    <p style="margin-top: 12px; font-weight: 600;">🎒 智能配置動態裝備：</p>
                     <ul class="ai-gear-list">
                         ${tailoredGearList.map(item => `<li>✅ ${item}</li>`).join('')}
                     </ul>
-                    ${weather.futureRainOrThunderAlert ? `<div style="color: #d9381e; font-size: 13px; margin-top: 12px; font-weight: 500;">⚠️ 趨勢警示：未來數天有局部雷雨，請確保防護套完整。</div>` : ""}
                 </div>
                 
                 ${nightWarningHTML}
             `;
+
+            aiBox.querySelector('#dir-forward-btn').addEventListener('click', () => { triggerCardAI(route, currentCardElement, false); });
+            aiBox.querySelector('#dir-reverse-btn').addEventListener('click', () => { triggerCardAI(route, currentCardElement, true); });
         }
 
-        // 黑夜模式切換
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         themeToggleBtn.innerText = savedTheme === 'dark' ? '☀️ 白天模式' : '🌙 黑夜模式';
@@ -1108,17 +1283,32 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        // 初始化
         initTagsUI();
         favoriteCountSpan.innerText = `已收藏 ${savedFavorites.length} 條路線`;
-        searchBtn.click();
+        
+        (async function initDashboard() {
+            try {
+                const currentRouteOne = hikingRoutes[0];
+                const weatherData = await fetchHKWeatherAndForecast(currentRouteOne.station);
+                updateGlobalDashboardAstro(weatherData.warningRaw, weatherData.temp, weatherData.humidity);
+            } catch(e) {
+                updateGlobalDashboardAstro("🟢 目前無惡劣天氣警告", 25, 75);
+            }
+            searchBtn.click();
+        })();
+
+        setInterval(async () => {
+            const currentRouteOne = hikingRoutes[0];
+            const weatherData = await fetchHKWeatherAndForecast(currentRouteOne.station);
+            updateGlobalDashboardAstro(weatherData.warningRaw, weatherData.temp, weatherData.humidity);
+        }, 60000);
     </script>
 
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swBlob = new Blob([`
-                    const CACHE_NAME = 'hiking-pro-v4';
+                    const CACHE_NAME = 'hiking-rice-v6';
                     const ASSETS = ['./', './index.html'];
                     self.addEventListener('install', e => {
                         e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
@@ -1130,9 +1320,7 @@
                     });
                 `], { type: 'application/javascript' });
                 const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl).then(() => {
-                    console.log('離線防禦 Service Worker 部署就緒！');
-                }).catch(err => console.log('SW 失敗: ', err));
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Error: ', err));
             });
         }
     </script>
